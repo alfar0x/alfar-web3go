@@ -114,9 +114,11 @@ class Worker {
 
     if (!quizAnswers) return answeredCount;
 
-    const questions = await getQuiz({ client: this.client, id: quizId });
+    const quiz = await getQuiz({ client: this.client, id: quizId });
 
-    for (const question of questions.items) {
+    logger.info(`${this.name} | solving ${quiz.title} quiz`);
+
+    for (const question of quiz.items) {
       if (question.answers?.length) continue;
 
       const questionAnswers = quizAnswers[question.sortIndex];
@@ -127,6 +129,8 @@ class Worker {
 
       await postQuizAnswer({ client: this.client, id: question.id, answers });
       await getQuiz({ client: this.client, id: quizId });
+
+      logger.info(`${this.name} | question #${question.sortIndex} solved`);
 
       answeredCount += 1;
 
