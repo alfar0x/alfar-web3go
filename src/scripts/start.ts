@@ -70,9 +70,7 @@ const main = async () => {
   );
 
   do {
-    const { name, wallet, todayErrors } = queueItem;
-
-    let isError = false;
+    const { name, wallet } = queueItem;
 
     try {
       const worker = new Worker({ name, client, wallet, contract });
@@ -82,7 +80,6 @@ const main = async () => {
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
-      isError = true;
       await sleep(10);
     }
 
@@ -91,43 +88,18 @@ const main = async () => {
       logger.info("ip changed");
     }
 
-    if (!config.global.isNewTaskAfterFinish) {
-      const isRerunToday =
-        isError && todayErrors + 1 < config.global.rerunTodayOnErrorCountLess;
-
+    if (config.global.isNewTaskAfterFinish) {
       const safeHours = 2;
 
-      const startTime = Math.max(
-        isRerunToday
-          ? new Date().getTime()
-          : addHours(startOfNextUTCDay(), safeHours).getTime(),
-        addSeconds(new Date().getTime(), 10).getTime(),
-      );
+      const startTime = addHours(startOfNextUTCDay(), safeHours).getTime();
+      const endTime = subHours(endOfNextUTCDay(), safeHours).getTime();
 
-      const endTime = Math.max(
-        isRerunToday
-          ? subMinutes(startOfNextUTCDay(), 1).getTime()
-          : subHours(endOfNextUTCDay(), safeHours).getTime(),
-        addSeconds(startTime, 10).getTime(),
-      );
-
-      const nextCurrentQueueItemData = queue.push(
-        wallet,
-        startTime,
-        endTime,
-        isRerunToday ? todayErrors + 1 : 0,
-      );
+      const nextCurrentQueueItemData = queue.push(wallet, startTime, endTime);
 
       const nextCurrentQueueItemRunSec = differenceInSeconds(
         nextCurrentQueueItemData.nextRunTime,
         new Date(),
       );
-
-      if (isRerunToday) {
-        logger.warn(
-          `${name} | due to an error wallet will be run today one more time`,
-        );
-      }
 
       logger.info(
         `${name} | next run ${formatRel(nextCurrentQueueItemRunSec)}`,

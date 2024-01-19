@@ -5,7 +5,6 @@ type Item = {
   name: string;
   wallet: ethers.Wallet;
   nextRunTime: number;
-  todayErrors: number;
 };
 
 class Queue {
@@ -27,14 +26,13 @@ class Queue {
     wallet: ethers.Wallet,
     startTime: number,
     endTime: number,
-    todayErrors = 0,
   ) {
     const nameStart = wallet.address.substring(0, 6);
     const nameEnd = wallet.address.substring(wallet.address.length - 4);
     const name = `${nameStart}...${nameEnd}`;
 
     const nextRunTime = randomInt(startTime, endTime);
-    const item: Item = { name, wallet, nextRunTime, todayErrors };
+    const item: Item = { name, wallet, nextRunTime };
     return item;
   }
 
@@ -52,13 +50,8 @@ class Queue {
     return this.items.length === 0;
   }
 
-  public push(
-    wallet: ethers.Wallet,
-    startTime: number,
-    endTime: number,
-    todayErrors = 0,
-  ) {
-    const item = Queue.createItem(wallet, startTime, endTime, todayErrors);
+  public push(wallet: ethers.Wallet, startTime: number, endTime: number) {
+    const item = Queue.createItem(wallet, startTime, endTime);
 
     this.items.push(item);
 

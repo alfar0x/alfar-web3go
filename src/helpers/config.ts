@@ -13,22 +13,25 @@ const iniNumberSchema = z
   .transform((str) => Number(str));
 
 const configSchema = z.object({
-  global: z.object({
-    rpc: z.string().url(),
-    minutesToInitializeAll: iniNumberSchema,
-    isNewTaskAfterFinish: z.boolean(),
-    rerunTodayOnErrorCountLess: z.number(),
-  }),
-  proxy: z.object({
-    type: z.union([z.literal("http"), z.literal("socks")]),
-    host: z.string().refine((value) => ipOrDomainPattern.test(value), {
-      message: "Invalid IP or domain format",
-    }),
-    port: iniNumberSchema,
-    username: z.string(),
-    password: z.string(),
-    changeUrl: z.string().url().or(z.string().length(0)),
-  }),
+  global: z
+    .object({
+      rpc: z.string().url(),
+      minutesToInitializeAll: iniNumberSchema,
+      isNewTaskAfterFinish: z.boolean(),
+    })
+    .strict(),
+  proxy: z
+    .object({
+      type: z.union([z.literal("http"), z.literal("socks")]),
+      host: z.string().refine((value) => ipOrDomainPattern.test(value), {
+        message: "Invalid IP or domain format",
+      }),
+      port: iniNumberSchema,
+      username: z.string(),
+      password: z.string(),
+      changeUrl: z.string().url().or(z.string().length(0)),
+    })
+    .strict(),
 });
 
 const getConfig = () => {
@@ -44,7 +47,6 @@ export const initializeConfig = () => {
       rpc: "https://rpc.ankr.com/bsc",
       minutesToInitializeAll: 1440,
       isNewTaskAfterFinish: true,
-      rerunTodayOnErrorCountLess: 1,
     },
     proxy: {
       type: "http",
