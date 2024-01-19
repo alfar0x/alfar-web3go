@@ -10,16 +10,25 @@ import { formatRel, sleep } from "../helpers/common";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import getConfig from "../helpers/config";
+import { getProxies } from "../helpers/proxies";
+import { randomChoice } from "../helpers/random";
 
 const main = async () => {
   const config = getConfig();
 
   const privateKeys = readByLine(FILE_PRIVATE_KEYS);
+  const proxies = getProxies();
+
+  if (!config.isRandomProxy && privateKeys.length !== proxies.length) {
+    throw new Error(
+      `private keys count must be equals to proxies count if isRandomProxy=false`,
+    );
+  }
 
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
-    url: config.global.rpc,
+    url: config.rpc,
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     skipFetchSetup: true,
     timeout: 10000,
@@ -27,20 +36,21 @@ const main = async () => {
 
   const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
-  const client = getClient({ proxy: config.proxy });
-
-  const wallets = privateKeys.map((p) => new ethers.Wallet(p, provider));
+  const wallets = privateKeys.map((p, i) => ({
+    wallet: new ethers.Wallet(p, provider),
+    index: i,
+  }));
 
   const timeToInit = addMinutes(
     new Date(),
-    config.global.minutesToInitializeAll,
+    config.minutesToInitializeAll,
   ).getTime();
 
   const queue = new Queue(wallets, timeToInit);
 
-  const secondsToInit = minutesToSeconds(config.global.minutesToInitializeAll);
+  const secondsToInit = minutesToSeconds(config.minutesToInitializeAll);
 
-  initTable(wallets.map((w) => w.address));
+  initTable(wallets.map((w) => w.wallet.address));
 
   logger.info(
     `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
@@ -64,9 +74,13 @@ const main = async () => {
 
     isFirstIteration = false;
 
-    const { name, wallet } = queueItem;
+    const { name, wallet, index } = queueItem;
+
+    const proxy = config.isRandomProxy ? randomChoice(proxies) : proxies[index];
 
     try {
+      const client = getClient({ proxy });
+
       const worker = new Worker({ name, client, wallet, contract });
 
       const { totalGoldLeaves } = await worker.run();
@@ -77,13 +91,13 @@ const main = async () => {
       await sleep(10);
     }
 
-    if (config.proxy.changeUrl) {
-      await axios.get(config.proxy.changeUrl);
+    if (proxy.changeUrl) {
+      await axios.get(proxy.changeUrl);
       logger.info("ip changed");
     }
 
-    if (config.global.isNewTaskAfterFinish) {
-      const nextRunSec = queue.push(wallet);
+    if (config.isNewTaskAfterFinish) {
+      const nextRunSec = queue.push(wallet, index);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
   }

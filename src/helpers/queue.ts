@@ -1,10 +1,11 @@
 import { ethers } from "ethers";
-import { randomInt } from "./random";
 import { addHours, differenceInSeconds, subHours } from "date-fns";
+import { randomInt } from "./random";
 import { startOfNextUTCDay, endOfNextUTCDay } from "./date";
 
 type Item = {
   name: string;
+  index: number;
   wallet: ethers.Wallet;
   nextRunTime: number;
 };
@@ -12,13 +13,18 @@ type Item = {
 class Queue {
   public readonly items: Item[];
 
-  public constructor(wallets: ethers.Wallet[], endTime: number) {
+  public constructor(
+    wallets: { wallet: ethers.Wallet; index: number }[],
+    endTime: number,
+  ) {
     this.items = [];
 
     const now = new Date().getTime() + 2 * 60 * 1000;
 
     for (const wallet of wallets) {
-      this.items.push(Queue.createItem(wallet, now, endTime));
+      this.items.push(
+        Queue.createItem(wallet.wallet, wallet.index, now, endTime),
+      );
     }
 
     this.sort();
@@ -26,6 +32,7 @@ class Queue {
 
   protected static createItem(
     wallet: ethers.Wallet,
+    index: number,
     startTime: number,
     endTime: number,
   ) {
@@ -34,7 +41,7 @@ class Queue {
     const name = `${nameStart}...${nameEnd}`;
 
     const nextRunTime = randomInt(startTime, endTime);
-    const item: Item = { name, wallet, nextRunTime };
+    const item: Item = { name, index, wallet, nextRunTime };
     return item;
   }
 
@@ -52,13 +59,13 @@ class Queue {
     return this.items.length === 0;
   }
 
-  public push(wallet: ethers.Wallet) {
+  public push(wallet: ethers.Wallet, index: number) {
     const safeHours = 2;
 
     const startTime = addHours(startOfNextUTCDay(), safeHours).getTime();
     const endTime = subHours(endOfNextUTCDay(), safeHours).getTime();
 
-    const item = Queue.createItem(wallet, startTime, endTime);
+    const item = Queue.createItem(wallet, index, startTime, endTime);
 
     this.items.push(item);
 
