@@ -51,14 +51,8 @@ class Queue {
     return this.items.length === 0;
   }
 
-  public push(wallet: ethers.Wallet) {
-    const safeHours = 2;
-
-    const item = Queue.createItem(
-      wallet,
-      addHours(startOfNextUTCDay(), safeHours).getTime(),
-      subHours(endOfNextUTCDay(), safeHours).getTime(),
-    );
+  public push(wallet: ethers.Wallet, startTime: number, endTime: number) {
+    const item = Queue.createItem(wallet, startTime, endTime);
 
     this.items.push(item);
 

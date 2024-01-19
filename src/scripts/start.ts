@@ -1,7 +1,16 @@
 import { ethers } from "ethers";
 import axios from "axios";
 import axiosRetry from "axios-retry";
-import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
+import {
+  addHours,
+  addMinutes,
+  addSeconds,
+  differenceInSeconds,
+  max,
+  minutesToSeconds,
+  subHours,
+  subMinutes,
+} from "date-fns";
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import getClient from "../helpers/client";
 import Worker from "../worker";
@@ -11,6 +20,7 @@ import { formatRel, sleep } from "../helpers/common";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import getConfig from "../helpers/config";
+import { startOfNextUTCDay, endOfNextUTCDay } from "../helpers/date";
 
 axiosRetry(axios, {
   retries: 10,
@@ -63,6 +73,8 @@ const main = async () => {
   do {
     const { name, wallet } = queueItem;
 
+    let isError = false;
+
     try {
       const worker = new Worker({ name, client, wallet, contract });
 
@@ -71,6 +83,7 @@ const main = async () => {
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
       logger.error(`${name} - ${(error as Error)?.message}`);
+      isError = true;
       await sleep(10);
     }
 
@@ -80,7 +93,21 @@ const main = async () => {
     }
 
     if (!config.global.isNewTaskAfterFinish) {
-      const nextCurrentQueueItemData = queue.push(wallet);
+      const safeHours = 2;
+
+      const startTime = isError
+        ? new Date().getTime()
+        : addHours(startOfNextUTCDay(), safeHours).getTime();
+
+      const endTime = isError
+        ? subMinutes(startOfNextUTCDay(), 1).getTime()
+        : subHours(endOfNextUTCDay(), safeHours).getTime();
+
+      const nextCurrentQueueItemData = queue.push(
+        wallet,
+        startTime,
+        max([endTime, addSeconds(startTime, 10)]).getTime(),
+      );
 
       const nextCurrentQueueItemRunSec = differenceInSeconds(
         nextCurrentQueueItemData.nextRunTime,
