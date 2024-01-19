@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { addHours, subHours } from "date-fns";
 import { randomInt } from "./random";
 import { endOfNextUTCDay, startOfNextUTCDay } from "./date";
 
@@ -51,10 +52,12 @@ class Queue {
   }
 
   public push(wallet: ethers.Wallet) {
+    const safeHours = 2;
+
     const item = Queue.createItem(
       wallet,
-      startOfNextUTCDay(),
-      endOfNextUTCDay(),
+      addHours(startOfNextUTCDay(), safeHours).getTime(),
+      subHours(endOfNextUTCDay(), safeHours).getTime(),
     );
 
     this.items.push(item);
