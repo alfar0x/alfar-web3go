@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 import { randomInt } from "./random";
+import { addHours, differenceInSeconds, subHours } from "date-fns";
+import { startOfNextUTCDay, endOfNextUTCDay } from "./date";
 
 type Item = {
   name: string;
@@ -50,14 +52,21 @@ class Queue {
     return this.items.length === 0;
   }
 
-  public push(wallet: ethers.Wallet, startTime: number, endTime: number) {
+  public push(wallet: ethers.Wallet) {
+    const safeHours = 2;
+
+    const startTime = addHours(startOfNextUTCDay(), safeHours).getTime();
+    const endTime = subHours(endOfNextUTCDay(), safeHours).getTime();
+
     const item = Queue.createItem(wallet, startTime, endTime);
 
     this.items.push(item);
 
     this.sort();
 
-    return item;
+    const nextRunSec = differenceInSeconds(item.nextRunTime, new Date());
+
+    return nextRunSec;
   }
 }
 

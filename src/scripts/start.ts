@@ -4,11 +4,9 @@ import axiosRetry from "axios-retry";
 import {
   addHours,
   addMinutes,
-  addSeconds,
   differenceInSeconds,
   minutesToSeconds,
   subHours,
-  subMinutes,
 } from "date-fns";
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import getClient from "../helpers/client";
@@ -89,21 +87,8 @@ const main = async () => {
     }
 
     if (config.global.isNewTaskAfterFinish) {
-      const safeHours = 2;
-
-      const startTime = addHours(startOfNextUTCDay(), safeHours).getTime();
-      const endTime = subHours(endOfNextUTCDay(), safeHours).getTime();
-
-      const nextCurrentQueueItemData = queue.push(wallet, startTime, endTime);
-
-      const nextCurrentQueueItemRunSec = differenceInSeconds(
-        nextCurrentQueueItemData.nextRunTime,
-        new Date(),
-      );
-
-      logger.info(
-        `${name} | next run ${formatRel(nextCurrentQueueItemRunSec)}`,
-      );
+      const nextRunSec = queue.push(wallet);
+      logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
 
     queueItem = queue.next();
