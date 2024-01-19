@@ -2,8 +2,19 @@ import axios from "axios";
 
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { SocksProxyAgent } from "socks-proxy-agent";
+import axiosRetry from "axios-retry";
 import { readByLine } from "./file";
 import { randomChoice } from "./random";
+import logger from "./logger";
+
+axiosRetry(axios, {
+  retries: 10,
+  shouldResetTimeout: true,
+  retryDelay: () => 2 * 60 * 1000,
+  onRetry: (retryCount, error) => {
+    logger.error(`error ${error.message}. Retrying ${retryCount}`);
+  },
+});
 
 type ProxyItem = {
   type: "http" | "socks";
