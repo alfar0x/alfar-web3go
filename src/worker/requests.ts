@@ -7,7 +7,9 @@ import {
   nonceSchema,
   quizSchema,
   quizesSchema,
+  recentCheckInsSchema,
 } from "./schemas";
+import { addDays, subDays } from "date-fns";
 
 export const postNonce = async (params: { client: Axios; address: string }) => {
   const { client, address } = params;
@@ -98,4 +100,17 @@ export const getGoldLeaves = async (params: { client: Axios }) => {
   const { data } = await client.get(`/GoldLeaf/me`);
 
   return goldLeavesSchema.parse(data);
+};
+
+export const getRecentCheckIns = async (params: { client: Axios }) => {
+  const start = formatDate(subDays(new Date(), 2), "yyyyMMdd");
+  const end = formatDate(addDays(new Date(), 4), "yyyyMMdd");
+
+  const { client } = params;
+
+  const { data } = await client.get(
+    `/checkin/points/his?start=${start}&end=${end}`,
+  );
+
+  return recentCheckInsSchema.parse(data);
 };

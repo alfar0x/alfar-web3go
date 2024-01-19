@@ -11,6 +11,7 @@ import {
   getNftSync,
   getQuiz,
   getQuizes,
+  getRecentCheckIns,
   postChallenge,
   postGiftOpen,
   postNonce,
@@ -19,6 +20,8 @@ import {
 } from "./requests";
 import { getLoginMessage } from "./web3";
 import answers from "./answers";
+import { formatDate } from "../helpers/date";
+import { isToday } from "date-fns";
 
 class Worker {
   private readonly name: string;
@@ -152,6 +155,16 @@ class Worker {
     return await getGoldLeaves({ client: this.client });
   }
 
+  async checkIsChecked() {
+    const recentCheckIns = await getRecentCheckIns({ client: this.client });
+
+    const todaysCheckIn = recentCheckIns.find((c) => isToday(c.date));
+
+    if (!todaysCheckIn) return false;
+
+    return todaysCheckIn.status === "checked";
+  }
+
   async run() {
     logger.info(`${this.name} | start`);
 
@@ -178,9 +191,12 @@ class Worker {
       logger.info(`${this.name} | answered ${answeredCount} questions`);
     }
 
-    await this.checkIn();
+    const isChecked = await this.checkIsChecked();
 
-    logger.info(`${this.name} | check in success`);
+    if (!isChecked) {
+      await this.checkIn();
+      logger.info(`${this.name} | check in success`);
+    }
 
     const { total } = await this.goldLeaves();
 

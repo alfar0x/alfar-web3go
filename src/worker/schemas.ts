@@ -1,3 +1,4 @@
+import { parse } from "date-fns";
 import { z } from "zod";
 
 export const nonceSchema = z.object({ nonce: z.string() });
@@ -79,3 +80,16 @@ export const goldLeavesSchema = z.object({
   total: z.number(),
   // today: z.number(),
 });
+
+export const recentCheckInsSchema = z.array(
+  z.object({
+    date: z.string().transform((str) => new Date(str)),
+    status: z.union([
+      z.literal("checked"),
+      z.literal("missed"),
+      z.literal("pending"),
+    ]),
+    gainedPoints: z.number(),
+    pointsIfChecked: z.number(),
+  }),
+);
