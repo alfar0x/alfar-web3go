@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
-import { addDays, endOfDay, startOfDay } from "date-fns";
-import { utcToZonedTime } from "date-fns-tz";
 import { randomInt } from "./random";
+import { endOfNextUTCDay, startOfNextUTCDay } from "./date";
 
 type Item = {
   name: string;
@@ -52,15 +51,11 @@ class Queue {
   }
 
   public push(wallet: ethers.Wallet) {
-    const currentDate = new Date();
-
-    const currentDateUTC = utcToZonedTime(currentDate, "UTC");
-
-    const startOfNextUTCDay = startOfDay(addDays(currentDateUTC, 1)).getTime();
-
-    const endOfNextUTCDay = endOfDay(addDays(currentDateUTC, 1)).getTime();
-
-    const item = Queue.createItem(wallet, startOfNextUTCDay, endOfNextUTCDay);
+    const item = Queue.createItem(
+      wallet,
+      startOfNextUTCDay(),
+      endOfNextUTCDay(),
+    );
 
     this.items.push(item);
 

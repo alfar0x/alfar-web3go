@@ -1,8 +1,8 @@
 import * as ini from "ini";
 import { z } from "zod";
-import { format } from "date-fns";
 import { readFile, writeFile } from "./file";
 import { FILE_CONFIG } from "./constants";
+import { formatDate } from "./date";
 
 const ipOrDomainPattern =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.?)+(?:[A-Za-z]{2,6})$/;
@@ -68,7 +68,7 @@ export const updateConfig = () => {
   if (checkIsConfigValid()) return;
 
   const configBackup = readFile(FILE_CONFIG);
-  const now = format(new Date(), "yy-MM-dd_hh-mm-ss");
+  const now = formatDate(new Date(), "yy-MM-dd_hh-mm-ss");
   writeFile(`./input/${now}-config-backup.ini`, configBackup);
   initializeConfig();
 };

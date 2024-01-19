@@ -1,5 +1,5 @@
 import { format, createLogger, transports } from "winston";
-import { format as formatDate } from "date-fns";
+import { formatDate } from "./date";
 
 const time = formatDate(Date.now(), "yy-MM-dd-HH-mm-ss");
 

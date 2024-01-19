@@ -12,7 +12,6 @@
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
     "date-fns": "^3.2.0",
-    "date-fns-tz": "^2.0.0",
     "ethers": "^5.7.2",
     "https-proxy-agent": "^7.0.2",
     "ini": "^4.1.1",

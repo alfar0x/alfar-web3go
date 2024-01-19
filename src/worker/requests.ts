@@ -1,5 +1,4 @@
 import { Axios } from "axios";
-import { format } from "date-fns";
 import {
   challengeSchema,
   giftsSchema,
@@ -8,6 +7,7 @@ import {
   quizSchema,
   quizesSchema,
 } from "./schemas";
+import { formatDate } from "../helpers/date";
 
 export const postNonce = async (params: { client: Axios; address: string }) => {
   const { client, address } = params;
@@ -40,7 +40,7 @@ export const putCheckIn = async (params: { client: Axios }) => {
   const { client } = params;
 
   await client.put("/checkIn", {
-    searchParams: { day: format(new Date(), "YYYY-MM-DD") },
+    searchParams: { day: formatDate(new Date(), "YYYY-MM-DD") },
   });
 };
 
