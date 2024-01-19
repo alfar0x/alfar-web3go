@@ -58,7 +58,7 @@ const main = async () => {
 
   logger.info(`all wallets will be initialized ${formatRel(secondsToInit)}`);
 
-  while (!queue.isEmpty()) {
+  do {
     const { name, wallet } = queueItem;
 
     try {
@@ -67,11 +67,15 @@ const main = async () => {
       const { totalGoldLeaves } = await worker.run();
 
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
-
-      if (config.proxy.changeUrl) await axios.get(config.proxy.changeUrl);
     } catch (error) {
+      console.error(error);
       logger.error(`${name} - ${(error as Error)?.message}`);
       await sleep(10);
+    }
+
+    if (config.proxy.changeUrl) {
+      await axios.get(config.proxy.changeUrl);
+      logger.info("ip changed");
     }
 
     if (!config.global.runOneTimeOnly) {
@@ -97,7 +101,7 @@ const main = async () => {
     );
 
     await sleep(pauseSec);
-  }
+  } while (!queue.isEmpty());
 
   logger.info("done");
 };

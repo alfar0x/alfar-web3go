@@ -48,10 +48,8 @@ export const checkIsTableValid = (addresses: string[]) => {
 
   if (!isAllAddressesValid) return false;
 
-  const filteredParsed = parsedAddresses.filter(Boolean);
-
   const isAllAddressesInTable = addresses.every((a) =>
-    filteredParsed.some((p) => p.address === a),
+    parsedAddresses.some((p) => p?.address === a),
   );
 
   if (!isAllAddressesInTable) return false;
@@ -88,5 +86,5 @@ export const updateAddressData = (
 
   const data = updatedData.join("\n");
 
-  writeFile(data, FILE_TABLE);
+  writeFile(FILE_TABLE, data);
 };

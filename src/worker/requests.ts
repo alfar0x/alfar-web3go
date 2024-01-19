@@ -1,4 +1,5 @@
 import { Axios } from "axios";
+import { formatDate } from "../helpers/date";
 import {
   challengeSchema,
   giftsSchema,
@@ -7,7 +8,6 @@ import {
   quizSchema,
   quizesSchema,
 } from "./schemas";
-import { formatDate } from "../helpers/date";
 
 export const postNonce = async (params: { client: Axios; address: string }) => {
   const { client, address } = params;
@@ -21,7 +21,7 @@ export const postChallenge = async (params: {
   client: Axios;
   address: string;
   challenge: string;
-  nonce: number;
+  nonce: number | string;
   signature: string;
 }) => {
   const { client, address, challenge, nonce, signature } = params;
@@ -39,9 +39,9 @@ export const postChallenge = async (params: {
 export const putCheckIn = async (params: { client: Axios }) => {
   const { client } = params;
 
-  await client.put("/checkIn", {
-    searchParams: { day: formatDate(new Date(), "YYYY-MM-DD") },
-  });
+  const day = formatDate(new Date(), "yyyy-MM-dd");
+
+  await client.put(`/checkin?day=${day}`);
 };
 
 export const getNftSync = async (params: { client: Axios }) => {

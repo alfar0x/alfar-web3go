@@ -1,4 +1,7 @@
-export const getLoginMessage = (params: { address: string; nonce: number }) => {
+export const getLoginMessage = (params: {
+  address: string;
+  nonce: number | string;
+}) => {
   const { address, nonce } = params;
   const date = new Date().toISOString();
 
