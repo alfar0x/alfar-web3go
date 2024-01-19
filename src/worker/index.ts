@@ -203,7 +203,13 @@ class Worker {
     await sleep(5, 10);
 
     const isChecked = await this.checkIn();
-    logger.info(`${this.name} | check status: ${isChecked}`);
+
+    if (isChecked) {
+      logger.info(`${this.name} | check in success`);
+    } else {
+      logger.info(`${this.name} | already checked in`);
+    }
+
     await sleep(5, 10);
 
     const totalGoldLeaves = await this.goldLeaves();
