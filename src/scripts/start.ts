@@ -82,7 +82,7 @@ const main = async () => {
 
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
-      logger.error(`${name} - ${(error as Error)?.message}`);
+      logger.error(`${name} | ${(error as Error)?.message}`);
       isError = true;
       await sleep(10);
     }

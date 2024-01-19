@@ -179,7 +179,7 @@ class Worker {
   }
 
   async run() {
-    logger.info(`${this.name} | start`);
+    logger.info(`${this.wallet.address} | start`);
 
     await this.login();
     logger.info(`${this.name} | login success`);
