@@ -1,7 +1,7 @@
 import { format, createLogger, transports } from "winston";
 import { formatDate } from "./date";
 
-const time = formatDate(Date.now(), "yy-MM-dd-HH-mm-ss");
+const time = formatDate(Date.now(), "yy-MM-dd_HH-mm-ss");
 
 const customFormat = format.printf(
   ({ level, message, timestamp }) => `${timestamp} | ${level} | ${message}`,
