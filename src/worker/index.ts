@@ -116,7 +116,7 @@ class Worker {
 
     const quiz = await getQuiz({ client: this.client, id: quizId });
 
-    logger.info(`${this.name} | solving ${quiz.title} quiz`);
+    logger.info(`${this.name} | solving ${quiz.title}`);
 
     for (const question of quiz.items) {
       if (question.answers?.length) continue;

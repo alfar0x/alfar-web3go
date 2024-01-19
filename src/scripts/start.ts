@@ -56,7 +56,9 @@ const main = async () => {
 
   initTable(wallets.map((w) => w.address));
 
-  logger.info(`all wallets will be initialized ${formatRel(secondsToInit)}`);
+  logger.info(
+    `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
+  );
 
   do {
     const { name, wallet } = queueItem;
