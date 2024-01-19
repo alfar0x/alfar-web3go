@@ -6,7 +6,6 @@ import {
   addMinutes,
   addSeconds,
   differenceInSeconds,
-  max,
   minutesToSeconds,
   subHours,
   subMinutes,
@@ -71,7 +70,7 @@ const main = async () => {
   );
 
   do {
-    const { name, wallet } = queueItem;
+    const { name, wallet, todayErrors } = queueItem;
 
     let isError = false;
 
@@ -82,7 +81,7 @@ const main = async () => {
 
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
-      logger.error(`${name} | ${(error as Error)?.message}`);
+      logger.error(`${wallet.address} | ${(error as Error)?.message}`);
       isError = true;
       await sleep(10);
     }
@@ -93,20 +92,30 @@ const main = async () => {
     }
 
     if (!config.global.isNewTaskAfterFinish) {
+      const isRerunToday =
+        isError && todayErrors + 1 < config.global.rerunTodayOnErrorCountLess;
+
       const safeHours = 2;
 
-      const startTime = isError
-        ? new Date().getTime()
-        : addHours(startOfNextUTCDay(), safeHours).getTime();
+      const startTime = Math.max(
+        isRerunToday
+          ? new Date().getTime()
+          : addHours(startOfNextUTCDay(), safeHours).getTime(),
+        addSeconds(new Date().getTime(), 10).getTime(),
+      );
 
-      const endTime = isError
-        ? subMinutes(startOfNextUTCDay(), 1).getTime()
-        : subHours(endOfNextUTCDay(), safeHours).getTime();
+      const endTime = Math.max(
+        isRerunToday
+          ? subMinutes(startOfNextUTCDay(), 1).getTime()
+          : subHours(endOfNextUTCDay(), safeHours).getTime(),
+        addSeconds(startTime, 10).getTime(),
+      );
 
       const nextCurrentQueueItemData = queue.push(
         wallet,
         startTime,
-        max([endTime, addSeconds(startTime, 10)]).getTime(),
+        endTime,
+        isRerunToday ? todayErrors + 1 : 0,
       );
 
       const nextCurrentQueueItemRunSec = differenceInSeconds(
@@ -114,9 +123,11 @@ const main = async () => {
         new Date(),
       );
 
-      logger.warn(
-        `${name} | due to an error wallet will be run today one more time`,
-      );
+      if (isRerunToday) {
+        logger.warn(
+          `${name} | due to an error wallet will be run today one more time`,
+        );
+      }
 
       logger.info(
         `${name} | next run ${formatRel(nextCurrentQueueItemRunSec)}`,

@@ -17,6 +17,7 @@ const configSchema = z.object({
     rpc: z.string().url(),
     minutesToInitializeAll: iniNumberSchema,
     isNewTaskAfterFinish: z.boolean(),
+    rerunTodayOnErrorCountLess: z.number(),
   }),
   proxy: z.object({
     type: z.union([z.literal("http"), z.literal("socks")]),
@@ -43,6 +44,7 @@ export const initializeConfig = () => {
       rpc: "https://rpc.ankr.com/bsc",
       minutesToInitializeAll: 1440,
       isNewTaskAfterFinish: true,
+      rerunTodayOnErrorCountLess: 1,
     },
     proxy: {
       type: "http",
