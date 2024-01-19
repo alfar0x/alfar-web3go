@@ -22,7 +22,7 @@ Script can:
 
 - rpc - BSC RPC url
 - minutesToInitializeAll - minutes to initialize all wallets on first iteration
-- runOneTimeOnly - indicates if the each wallet should run only once (or create task to another day and so on)
+- isNewTaskAfterFinish - indicates if the each wallet should run only once (or create task to another day and so on)
 
 ### Proxy Configuration
 

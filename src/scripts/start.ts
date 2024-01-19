@@ -77,7 +77,7 @@ const main = async () => {
       logger.info("ip changed");
     }
 
-    if (!config.global.runOneTimeOnly) {
+    if (!config.global.isNewTaskAfterFinish) {
       const nextCurrentQueueItemData = queue.push(wallet);
 
       const nextCurrentQueueItemRunSec = differenceInSeconds(
