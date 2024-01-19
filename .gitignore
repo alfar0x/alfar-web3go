@@ -1,0 +1,7 @@
+.vscode/
+input/
+logs/
+node_modules/
+output/
+yarn-error.log
+yarn.lock
