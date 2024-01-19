@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import axios from "axios";
-import axiosRetry from "axios-retry";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import getClient from "../helpers/client";
@@ -11,15 +10,6 @@ import { formatRel, sleep } from "../helpers/common";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import getConfig from "../helpers/config";
-
-axiosRetry(axios, {
-  retries: 10,
-  shouldResetTimeout: true,
-  retryDelay: () => 2 * 60 * 1000,
-  onRetry: (retryCount, error) => {
-    logger.error(`error ${error.message}. Retrying ${retryCount}`);
-  },
-});
 
 const main = async () => {
   const config = getConfig();
