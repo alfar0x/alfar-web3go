@@ -1,6 +1,7 @@
 import { Axios } from "axios";
 import { ethers } from "ethers";
 
+import { isToday } from "date-fns";
 import { sleep } from "../helpers/common";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
 import { randomFloat } from "../helpers/random";
@@ -20,8 +21,6 @@ import {
 } from "./requests";
 import { getLoginMessage } from "./web3";
 import answers from "./answers";
-import { formatDate } from "../helpers/date";
-import { isToday } from "date-fns";
 
 class Worker {
   private readonly name: string;
@@ -76,6 +75,10 @@ class Worker {
   }
 
   async mint() {
+    const nftCount: number = await this.nftCount();
+
+    if (nftCount !== 0) return null;
+
     const contract = this.contract.connect(this.wallet);
 
     const tx = await contract.safeMint(this.wallet.address, {
@@ -148,11 +151,17 @@ class Worker {
   }
 
   async checkIn() {
+    const isChecked = await this.checkIsChecked();
+    if (isChecked) return false;
+
     await putCheckIn({ client: this.client });
+    return true;
   }
 
   async goldLeaves() {
-    return await getGoldLeaves({ client: this.client });
+    const data = await getGoldLeaves({ client: this.client });
+
+    return data.total;
   }
 
   async checkIsChecked() {
@@ -172,37 +181,32 @@ class Worker {
     logger.info(`${this.name} | login success`);
     await sleep(5, 10);
 
-    const nftCount: number = await this.nftCount();
+    const hash = await this.mint();
 
-    if (nftCount == 0) {
-      await this.mint();
-      logger.info(`${this.name} | passport mint success`);
+    if (hash) {
+      logger.info(
+        `${this.name} | passport mint success https://bscscan.com/tx/${hash}`,
+      );
       await sleep(5, 10);
-
-      const count = await this.giftOpen();
-      await sleep(5, 10);
-
-      if (count) logger.info(`${this.name} | gift opened`);
     }
+
+    const openedGiftsCount = await this.giftOpen();
+    logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
+    await sleep(5, 10);
 
     const answeredCount = await this.quizes();
+    logger.info(`${this.name} | answered ${answeredCount} questions`);
+    await sleep(5, 10);
 
-    if (answeredCount) {
-      logger.info(`${this.name} | answered ${answeredCount} questions`);
-    }
+    const isChecked = await this.checkIn();
+    logger.info(`${this.name} | check status: ${isChecked}`);
+    await sleep(5, 10);
 
-    const isChecked = await this.checkIsChecked();
+    const totalGoldLeaves = await this.goldLeaves();
+    logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
+    await sleep(5, 10);
 
-    if (!isChecked) {
-      await this.checkIn();
-      logger.info(`${this.name} | check in success`);
-    }
-
-    const { total } = await this.goldLeaves();
-
-    logger.info(`${this.name} | now has ${total} leaves`);
-
-    return { totalGoldLeaves: total };
+    return { totalGoldLeaves };
   }
 }
 
