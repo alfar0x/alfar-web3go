@@ -1,13 +1,7 @@
 import { ethers } from "ethers";
 import axios from "axios";
 import axiosRetry from "axios-retry";
-import {
-  addHours,
-  addMinutes,
-  differenceInSeconds,
-  minutesToSeconds,
-  subHours,
-} from "date-fns";
+import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import getClient from "../helpers/client";
 import Worker from "../worker";
@@ -17,7 +11,6 @@ import { formatRel, sleep } from "../helpers/common";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import getConfig from "../helpers/config";
-import { startOfNextUTCDay, endOfNextUTCDay } from "../helpers/date";
 
 axiosRetry(axios, {
   retries: 10,
@@ -55,10 +48,6 @@ const main = async () => {
 
   const queue = new Queue(wallets, timeToInit);
 
-  let queueItem = queue.next();
-
-  if (!queueItem) throw new Error("wallets is empty");
-
   const secondsToInit = minutesToSeconds(config.global.minutesToInitializeAll);
 
   initTable(wallets.map((w) => w.address));
@@ -67,7 +56,24 @@ const main = async () => {
     `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
   );
 
-  do {
+  let isFirstIteration = true;
+
+  while (!queue.isEmpty()) {
+    const queueItem = queue.next();
+
+    if (!queueItem) break;
+
+    if (!isFirstIteration) {
+      const pauseSec = Math.max(
+        differenceInSeconds(queueItem.nextRunTime, new Date()),
+        10,
+      );
+
+      await sleep(pauseSec);
+    }
+
+    isFirstIteration = false;
+
     const { name, wallet } = queueItem;
 
     try {
@@ -90,18 +96,7 @@ const main = async () => {
       const nextRunSec = queue.push(wallet);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
-
-    queueItem = queue.next();
-
-    if (!queueItem) break;
-
-    const pauseSec = Math.max(
-      differenceInSeconds(queueItem.nextRunTime, new Date()),
-      10,
-    );
-
-    await sleep(pauseSec);
-  } while (!queue.isEmpty());
+  }
 
   logger.info("done");
 };
