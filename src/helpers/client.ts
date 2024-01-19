@@ -48,7 +48,7 @@ const getAgent = (proxy?: ProxyItem) => {
 
 const getClient = (params: { proxy?: ProxyItem }) => {
   const { proxy } = params;
-  const userAgent = randomChoice(readByLine("assets/userAgents.txt"));
+  const userAgent = randomChoice(readByLine("assets/user-agents.txt"));
 
   const agent = getAgent(proxy);
 
