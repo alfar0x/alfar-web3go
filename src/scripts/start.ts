@@ -114,8 +114,12 @@ const main = async () => {
         new Date(),
       );
 
+      logger.warn(
+        `${name} | due to an error wallet will be run today one more time`,
+      );
+
       logger.info(
-        `${wallet.address} next run ${formatRel(nextCurrentQueueItemRunSec)}`,
+        `${name} | next run ${formatRel(nextCurrentQueueItemRunSec)}`,
       );
     }
 
