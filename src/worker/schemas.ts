@@ -24,7 +24,7 @@ export const quizesSchema = z.array(
     id: z.string(),
     totalItemCount: z.number(),
     currentProgress: z.number(),
-    title: z.string(),
+    // title: z.string(),
     // description: z.string(),
     // rewardPoints: z.number(),
     // extraRewards: z.string().nullable(),
@@ -56,7 +56,7 @@ const quizItemSchema = z.object({
 export const quizSchema = z.object({
   id: z.string(),
   items: z.array(quizItemSchema),
-  // title: z.string(),
+  title: z.string(),
   // topic: z.string(),
   // description: z.string(),
   // show: z.boolean(),
