@@ -9,7 +9,11 @@ import { config } from "../helpers/common";
 
 const update = () => {
   createFiles([FILE_TABLE, FILE_PRIVATE_KEYS, FILE_PROXIES, FILE_CONFIG]);
-  config.updateConfig();
+  try {
+    config.resetFile();
+  } catch (e) {
+    /* empty */
+  }
 };
 
 update();

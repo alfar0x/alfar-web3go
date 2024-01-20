@@ -1,13 +1,7 @@
 import { ethers } from "ethers";
 import axios from "axios";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
-import {
-  formatRel,
-  randomChoice,
-  readByLine,
-  readFile,
-  sleep,
-} from "@alfar/helpers";
+import { formatRel, randomChoice, readByLine, readFile } from "@alfar/helpers";
 
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import Worker from "../worker";

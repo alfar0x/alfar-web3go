@@ -13,7 +13,7 @@ import {
 } from "@alfar/helpers";
 import axiosRetry from "axios-retry";
 import axios from "axios";
-import { addHours } from "date-fns";
+import { addHours, minutesToMilliseconds } from "date-fns";
 import { z } from "zod";
 import { FILE_CONFIG, FILE_PROXIES } from "./constants";
 
@@ -31,14 +31,17 @@ export const getProxies = () =>
 export const startOfNextUTCDay = () => {
   const currentLocalTime = new Date();
 
-  const timezoneOffset = currentLocalTime.getTimezoneOffset();
+  const timezoneOffsetMs = minutesToMilliseconds(
+    currentLocalTime.getTimezoneOffset(),
+  );
 
   const startOfNextDayLocal = new Date(currentLocalTime);
+
   startOfNextDayLocal.setHours(0, 0, 0, 0);
   startOfNextDayLocal.setDate(startOfNextDayLocal.getDate() + 1);
 
   const startOfNextDayUTC = new Date(
-    startOfNextDayLocal.getTime() - timezoneOffset * 60 * 1000,
+    startOfNextDayLocal.getTime() - timezoneOffsetMs,
   );
 
   const timestampNextDayUTC = startOfNextDayUTC.getTime();
