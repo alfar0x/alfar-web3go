@@ -1,4 +1,4 @@
-# Web3go by [alfar](https://t.me/+FozX3VZA0RIyNWY6)
+# web3go by [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 **Note:** This script is still in development. Use it with caution!
 
