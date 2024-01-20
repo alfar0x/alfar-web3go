@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { addHours, differenceInSeconds, subHours } from "date-fns";
-import { randomInt } from "./random";
+import { randomInt } from "@alfar/helpers";
 import { startOfNextUTCDay, endOfNextUTCDay } from "./date";
 
 type Item = {

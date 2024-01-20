@@ -1,11 +1,10 @@
 import { Axios } from "axios";
-import { ethers } from "ethers";
+import { ethers, logger } from "ethers";
 
 import { isToday } from "date-fns";
-import { sleep } from "../helpers/common";
+import { randomFloat } from "@alfar/helpers";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
-import { randomFloat } from "../helpers/random";
-import logger from "../helpers/logger";
+import { wait } from "../helpers/common";
 import {
   getGifts,
   getGoldLeaves,
@@ -134,7 +133,7 @@ class Worker {
 
       answeredCount += 1;
 
-      await sleep(5, 10);
+      await wait(5, 10);
     }
 
     return answeredCount;
@@ -183,7 +182,7 @@ class Worker {
 
     await this.login();
     logger.info(`${this.name} | login success`);
-    await sleep(5, 10);
+    await wait(5, 10);
 
     const hash = await this.mint();
 
@@ -191,16 +190,16 @@ class Worker {
       logger.info(
         `${this.name} | passport mint success https://bscscan.com/tx/${hash}`,
       );
-      await sleep(5, 10);
+      await wait(5, 10);
     }
 
     const openedGiftsCount = await this.giftOpen();
     logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
-    await sleep(5, 10);
+    await wait(5, 10);
 
     const answeredCount = await this.quizes();
     logger.info(`${this.name} | answered ${answeredCount} questions`);
-    await sleep(5, 10);
+    await wait(5, 10);
 
     const isChecked = await this.checkIn();
 
@@ -210,11 +209,11 @@ class Worker {
       logger.info(`${this.name} | already checked in`);
     }
 
-    await sleep(5, 10);
+    await wait(5, 10);
 
     const totalGoldLeaves = await this.goldLeaves();
     logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
-    await sleep(5, 10);
+    await wait(5, 10);
 
     return { totalGoldLeaves };
   }

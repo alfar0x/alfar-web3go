@@ -1,4 +1,3 @@
-import { parse } from "date-fns";
 import { z } from "zod";
 
 export const nonceSchema = z.object({ nonce: z.string() });

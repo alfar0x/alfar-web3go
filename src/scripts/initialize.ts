@@ -1,15 +1,15 @@
+import { createFiles } from "@alfar/helpers";
 import {
   FILE_CONFIG,
   FILE_PRIVATE_KEYS,
   FILE_PROXIES,
   FILE_TABLE,
 } from "../helpers/constants";
-import initializeFiles from "../helpers/initialize-files";
-import { initializeConfig } from "../helpers/config";
+import { config } from "../helpers/common";
 
 const initialize = () => {
-  initializeFiles([FILE_TABLE, FILE_PRIVATE_KEYS, FILE_PROXIES, FILE_CONFIG]);
-  initializeConfig();
+  createFiles([FILE_TABLE, FILE_PRIVATE_KEYS, FILE_PROXIES, FILE_CONFIG]);
+  config.resetFile();
 };
 
 initialize();

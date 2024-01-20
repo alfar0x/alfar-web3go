@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { parse } from "date-fns";
+import { parse, format } from "date-fns";
+import { readByLine, writeFile } from "@alfar/helpers";
 import { FILE_TABLE } from "./constants";
-import { readByLine, writeFile } from "./file";
-import { formatDate } from "./date";
 
 const divider = ",";
 const dateFormat = "MM/dd hh:mm";
@@ -28,7 +27,7 @@ const formatObjectItem = (
   updatedAt: Date,
   totalLeaves?: number,
 ) => {
-  const updatedAtStr = formatDate(updatedAt, dateFormat);
+  const updatedAtStr = format(updatedAt, dateFormat);
   const totalLeavesStr = totalLeaves || "";
   return [address, updatedAtStr, totalLeavesStr].join(divider);
 };

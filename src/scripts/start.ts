@@ -1,25 +1,25 @@
 import { ethers } from "ethers";
 import axios from "axios";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
+import {
+  formatRel,
+  randomChoice,
+  readByLine,
+  readFile,
+  sleep,
+} from "@alfar/helpers";
+
 import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
-import getClient from "../helpers/client";
 import Worker from "../worker";
-import logger from "../helpers/logger";
-import { readByLine, readFile } from "../helpers/file";
-import { formatRel, sleep } from "../helpers/common";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
-import getConfig from "../helpers/config";
-import { getProxies } from "../helpers/proxies";
-import { randomChoice } from "../helpers/random";
+import { getProxies, config, getClient, logger } from "../helpers/common";
 
 const main = async () => {
-  const config = getConfig();
-
   const privateKeys = readByLine(FILE_PRIVATE_KEYS);
   const proxies = getProxies();
 
-  if (!config.isRandomProxy && privateKeys.length !== proxies.length) {
+  if (!config.fixed.isRandomProxy && privateKeys.length !== proxies.length) {
     throw new Error(
       `private keys count must be equals to proxies count if isRandomProxy=false`,
     );
@@ -28,7 +28,7 @@ const main = async () => {
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
-    url: config.rpc,
+    url: config.fixed.rpc,
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     skipFetchSetup: true,
     timeout: 10000,
@@ -43,12 +43,12 @@ const main = async () => {
 
   const timeToInit = addMinutes(
     new Date(),
-    config.minutesToInitializeAll,
+    config.fixed.minutesToInitializeAll,
   ).getTime();
 
   const queue = new Queue(wallets, timeToInit);
 
-  const secondsToInit = minutesToSeconds(config.minutesToInitializeAll);
+  const secondsToInit = minutesToSeconds(config.fixed.minutesToInitializeAll);
 
   initTable(wallets.map((w) => w.wallet.address));
 
@@ -69,14 +69,16 @@ const main = async () => {
         10,
       );
 
-      await sleep(pauseSec);
+      await wait(pauseSec);
     }
 
     isFirstIteration = false;
 
     const { name, wallet, index } = queueItem;
 
-    const proxy = config.isRandomProxy ? randomChoice(proxies) : proxies[index];
+    const proxy = config.fixed.isRandomProxy
+      ? randomChoice(proxies)
+      : proxies[index];
 
     try {
       const client = getClient({ proxy });
@@ -88,7 +90,7 @@ const main = async () => {
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
-      await sleep(10);
+      await wait(10);
     }
 
     if (proxy.changeUrl) {
@@ -96,7 +98,7 @@ const main = async () => {
       logger.info("ip changed");
     }
 
-    if (config.isNewTaskAfterFinish) {
+    if (config.fixed.isNewTaskAfterFinish) {
       const nextRunSec = queue.push(wallet, index);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }

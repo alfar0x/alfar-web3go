@@ -1,5 +1,5 @@
 import { Axios } from "axios";
-import { formatDate } from "../helpers/date";
+import { subDays, addDays, format } from "date-fns";
 import {
   challengeSchema,
   giftsSchema,
@@ -9,7 +9,6 @@ import {
   quizesSchema,
   recentCheckInsSchema,
 } from "./schemas";
-import { addDays, subDays } from "date-fns";
 
 export const postNonce = async (params: { client: Axios; address: string }) => {
   const { client, address } = params;
@@ -41,7 +40,7 @@ export const postChallenge = async (params: {
 export const putCheckIn = async (params: { client: Axios }) => {
   const { client } = params;
 
-  const day = formatDate(new Date(), "yyyy-MM-dd");
+  const day = format(new Date(), "yyyy-MM-dd");
 
   await client.put(`/checkin?day=${day}`);
 };
@@ -103,8 +102,8 @@ export const getGoldLeaves = async (params: { client: Axios }) => {
 };
 
 export const getRecentCheckIns = async (params: { client: Axios }) => {
-  const start = formatDate(subDays(new Date(), 2), "yyyyMMdd");
-  const end = formatDate(addDays(new Date(), 4), "yyyyMMdd");
+  const start = format(subDays(new Date(), 2), "yyyyMMdd");
+  const end = format(addDays(new Date(), 4), "yyyyMMdd");
 
   const { client } = params;
 
