@@ -9,7 +9,7 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@alfar/helpers": "^0.0.19",
+    "@alfar/helpers": "^0.0.20",
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
     "date-fns": "^3.3.0",

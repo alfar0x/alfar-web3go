@@ -47,7 +47,6 @@ Example proxy: __http;11.1.1.1;8000;user;password__ or __socks;11.1.1.1;8000;use
 
 ## How to Update
 1. Type `npm run update`.
-1. If there are new settings, it keeps your old ones safe and creates new ones.
-1. If there are new settings, fill in `input/config.ini`.
+1. If there are new settings, system will create backup file of previous config and create new one `input/config.ini` file.
 
 Discover more scripts on our [Telegram channel](https://t.me/+FozX3VZA0RIyNWY6).
