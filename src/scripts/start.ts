@@ -1,23 +1,23 @@
 import { ethers } from "ethers";
 import axios from "axios";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
-import { formatRel, randomChoice, readByLine, readFile } from "@alfar/helpers";
+import { formatRel, randomChoice, readFile } from "@alfar/helpers";
 
-import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
+import { CONTRACT_ADDRESS } from "../helpers/constants";
 import Worker from "../worker";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
-import { getProxies, config, getClient, logger, wait } from "../helpers/common";
+import {
+  getProxies,
+  config,
+  getClient,
+  logger,
+  wait,
+  getWallets,
+} from "../helpers/common";
 
 const main = async () => {
-  const privateKeys = readByLine(FILE_PRIVATE_KEYS);
   const proxies = getProxies();
-
-  if (!config.fixed.isRandomProxy && privateKeys.length !== proxies.length) {
-    throw new Error(
-      `private keys count must be equals to proxies count if isRandomProxy=false`,
-    );
-  }
 
   const abi = readFile("./assets/abi.json");
 
@@ -30,10 +30,15 @@ const main = async () => {
 
   const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
-  const wallets = privateKeys.map((p, i) => ({
-    wallet: new ethers.Wallet(p, provider),
-    index: i,
-  }));
+  const wallets = getWallets(provider);
+
+  if (!config.fixed.isRandomProxy && wallets.length !== proxies.length) {
+    throw new Error(
+      `private keys count must be equals to proxies count if isRandomProxy=false`,
+    );
+  }
+
+  initTable(wallets.map((w) => w.wallet.address));
 
   const timeToInit = addMinutes(
     new Date(),
@@ -43,8 +48,6 @@ const main = async () => {
   const queue = new Queue(wallets, timeToInit);
 
   const secondsToInit = minutesToSeconds(config.fixed.minutesToInitializeAll);
-
-  initTable(wallets.map((w) => w.wallet.address));
 
   logger.info(
     `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
@@ -93,7 +96,7 @@ const main = async () => {
     }
 
     if (config.fixed.isNewTaskAfterFinish) {
-      const nextRunSec = queue.push(wallet, index);
+      const nextRunSec = queue.push(queueItem);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
   }

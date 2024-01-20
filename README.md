@@ -1,6 +1,6 @@
 # web3go by [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
-**Note:** This script is still in development. Use it with caution!
+**Note:** This script is still in development. Use it with on your own risk!
 
 ## What the Script Does
 1. Login
@@ -12,8 +12,8 @@
 
 ## How to Install
 1. Download and install [Node.js](https://nodejs.org/en/download).
-1. Install by typing `npm install` in the main folder.
-1. Set up with `npm run initialize`.
+1. Install command - `npm install`.
+1. Set up command - `npm run initialize`.
 
 ## Setting Up
 1. Fill in `input/config.ini`, `input/private-keys.txt`, and `input/proxies.txt`.
@@ -23,6 +23,13 @@
 - minutesToInitializeAll: Time to set up all wallets the first time
 - isNewTaskAfterFinish: Choose if wallets run once or keep going
 - isRandomProxy: Decide if system picks a random proxy or uses the wallet number
+
+### Private keys
+Each line is one private key, with values separated by **;**
+- private key: you can use private key with __0x__ or without it
+- name (optional): if you want to specify name you can add it
+
+Example private key: __0xaaaaabbbbb__ or __0xaaaaabbbbb;wallet1__ or __aaaaabbbbb__
 
 ### Proxies
 Each line is one proxy, with values separated by **;**

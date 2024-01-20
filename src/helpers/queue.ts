@@ -1,48 +1,36 @@
-import { ethers } from "ethers";
+import { Wallet } from "ethers";
 import { addHours, differenceInSeconds, subHours } from "date-fns";
 import { randomInt } from "@alfar/helpers";
 import { startOfNextUTCDay, endOfNextUTCDay } from "./common";
 
+type RawItem = {
+  name: string;
+  index: number;
+  wallet: Wallet;
+};
+
 type Item = {
   name: string;
   index: number;
-  wallet: ethers.Wallet;
+  wallet: Wallet;
   nextRunTime: number;
 };
 
 class Queue {
   public readonly items: Item[];
 
-  public constructor(
-    wallets: { wallet: ethers.Wallet; index: number }[],
-    endTime: number,
-  ) {
+  public constructor(items: RawItem[], endTime: number) {
     this.items = [];
 
     const now = new Date().getTime() + 2 * 60 * 1000;
 
-    for (const wallet of wallets) {
-      this.items.push(
-        Queue.createItem(wallet.wallet, wallet.index, now, endTime),
-      );
+    for (const item of items) {
+      const { name, wallet, index } = item;
+      const nextRunTime = randomInt(now, endTime);
+      this.items.push({ name, wallet, index, nextRunTime });
     }
 
     this.sort();
-  }
-
-  protected static createItem(
-    wallet: ethers.Wallet,
-    index: number,
-    startTime: number,
-    endTime: number,
-  ) {
-    const nameStart = wallet.address.substring(0, 6);
-    const nameEnd = wallet.address.substring(wallet.address.length - 4);
-    const name = `${nameStart}...${nameEnd}`;
-
-    const nextRunTime = randomInt(startTime, endTime);
-    const item: Item = { name, index, wallet, nextRunTime };
-    return item;
   }
 
   public sort() {
@@ -59,19 +47,19 @@ class Queue {
     return this.items.length === 0;
   }
 
-  public push(wallet: ethers.Wallet, index: number) {
-    const safeHours = 2;
+  public push(rawItem: RawItem) {
+    const { name, wallet, index } = rawItem;
 
+    const safeHours = 2;
     const startTime = addHours(startOfNextUTCDay(), safeHours).getTime();
     const endTime = subHours(endOfNextUTCDay(), safeHours).getTime();
+    const nextRunTime = randomInt(startTime, endTime);
 
-    const item = Queue.createItem(wallet, index, startTime, endTime);
-
-    this.items.push(item);
+    this.items.push({ name, wallet, index, nextRunTime });
 
     this.sort();
 
-    const nextRunSec = differenceInSeconds(item.nextRunTime, new Date());
+    const nextRunSec = differenceInSeconds(nextRunTime, new Date());
 
     return nextRunSec;
   }

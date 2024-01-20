@@ -1,7 +1,9 @@
 import {
   IniConfig,
   ProxyItem,
+  evmPrivateKeySchema,
   formatRel,
+  formatShortString,
   getProxyAgent,
   iniNumberSchema,
   initDefaultLogger,
@@ -15,7 +17,8 @@ import axiosRetry from "axios-retry";
 import axios from "axios";
 import { addHours, minutesToMilliseconds } from "date-fns";
 import { z } from "zod";
-import { FILE_CONFIG, FILE_PROXIES } from "./constants";
+import { ethers } from "ethers";
+import { FILE_CONFIG, FILE_PRIVATE_KEYS, FILE_PROXIES } from "./constants";
 
 export const logger = initDefaultLogger();
 
@@ -27,6 +30,22 @@ export const wait = async (minSec: number, maxSec?: number) => {
 
 export const getProxies = () =>
   readByLine(FILE_PROXIES).map((p) => parseProxy(p));
+
+export const getWallets = (provider: ethers.providers.JsonRpcProvider) => {
+  return readByLine(FILE_PRIVATE_KEYS).map((item, index) => {
+    const [prKey, name] = item.split(";");
+
+    const parsedPrivateKey = evmPrivateKeySchema.parse(prKey);
+
+    const wallet = new ethers.Wallet(parsedPrivateKey, provider);
+
+    if (name) return { index, wallet, name };
+
+    const addressName = formatShortString(wallet.address, 6, 4);
+
+    return { index, wallet, name: addressName };
+  });
+};
 
 export const startOfNextUTCDay = () => {
   const currentLocalTime = new Date();
