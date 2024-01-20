@@ -7,7 +7,7 @@ import { CONTRACT_ADDRESS, FILE_PRIVATE_KEYS } from "../helpers/constants";
 import Worker from "../worker";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
-import { getProxies, config, getClient, logger } from "../helpers/common";
+import { getProxies, config, getClient, logger, wait } from "../helpers/common";
 
 const main = async () => {
   const privateKeys = readByLine(FILE_PRIVATE_KEYS);
