@@ -1,10 +1,10 @@
 import { Axios } from "axios";
-import { ethers, logger } from "ethers";
+import { ethers } from "ethers";
 
 import { isToday } from "date-fns";
 import { randomFloat } from "@alfar/helpers";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
-import { wait } from "../helpers/common";
+import { logger, wait } from "../helpers/common";
 import {
   getGifts,
   getGoldLeaves,
