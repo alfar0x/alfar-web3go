@@ -2,7 +2,7 @@ import { Axios } from "axios";
 import { ethers } from "ethers";
 
 import { isToday } from "date-fns";
-import { randomFloat } from "@alfar/helpers";
+import { randomFloat, shuffle } from "@alfar/helpers";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
 import { logger, wait } from "../helpers/common";
 import {
@@ -152,7 +152,7 @@ class Worker {
 
     const quizes = await getQuizes({ client: this.client });
 
-    for (const quiz of quizes) {
+    for (const quiz of shuffle(quizes)) {
       if (quiz.currentProgress !== quiz.totalItemCount) {
         answeredCount += await this.questions(quiz.id);
       }
