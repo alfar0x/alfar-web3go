@@ -22,7 +22,7 @@ const main = async () => {
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
-    url: config.fixed.rpc,
+    url: config.fixed.common.rpc,
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     skipFetchSetup: true,
     timeout: 10000,
@@ -32,7 +32,7 @@ const main = async () => {
 
   const wallets = getWallets(provider);
 
-  if (!config.fixed.isRandomProxy && wallets.length !== proxies.length) {
+  if (!config.fixed.common.isRandomProxy && wallets.length !== proxies.length) {
     throw new Error(
       `private keys count must be equals to proxies count if isRandomProxy=false`,
     );
@@ -42,12 +42,14 @@ const main = async () => {
 
   const timeToInit = addMinutes(
     new Date(),
-    config.fixed.minutesToInitializeAll,
+    config.fixed.collectAll.minutesToInitializeAll,
   ).getTime();
 
   const queue = new Queue(wallets, timeToInit);
 
-  const secondsToInit = minutesToSeconds(config.fixed.minutesToInitializeAll);
+  const secondsToInit = minutesToSeconds(
+    config.fixed.collectAll.minutesToInitializeAll,
+  );
 
   logger.info(
     `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
@@ -73,7 +75,7 @@ const main = async () => {
 
     const { name, wallet, index } = queueItem;
 
-    const proxy = config.fixed.isRandomProxy
+    const proxy = config.fixed.common.isRandomProxy
       ? randomChoice(proxies)
       : proxies[index];
 
@@ -95,7 +97,7 @@ const main = async () => {
       logger.info("ip changed");
     }
 
-    if (config.fixed.isNewTaskAfterFinish) {
+    if (config.fixed.collectAll.isNewTaskAfterFinish) {
       const nextRunSec = queue.push(queueItem);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }

@@ -105,10 +105,14 @@ export const getClient = (params: { proxy?: ProxyItem }) => {
 
 const fixedSchema = z
   .object({
-    rpc: z.string().url(),
-    minutesToInitializeAll: iniNumberSchema,
-    isNewTaskAfterFinish: z.boolean(),
-    isRandomProxy: z.boolean(),
+    common: z.object({
+      rpc: z.string().url(),
+      isRandomProxy: z.boolean(),
+    }),
+    collectAll: z.object({
+      minutesToInitializeAll: iniNumberSchema,
+      isNewTaskAfterFinish: z.boolean(),
+    }),
   })
   .strict();
 
@@ -119,10 +123,14 @@ export const config = new IniConfig({
   onDynamicError: logger.error,
   defaultValues: {
     fixed: {
-      rpc: "https://rpc.ankr.com/bsc",
-      minutesToInitializeAll: 1440,
-      isNewTaskAfterFinish: true,
-      isRandomProxy: true,
+      common: {
+        rpc: "https://rpc.ankr.com/bsc",
+        isRandomProxy: true,
+      },
+      collectAll: {
+        minutesToInitializeAll: 1440,
+        isNewTaskAfterFinish: true,
+      },
     },
     dynamic: {},
   },

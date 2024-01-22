@@ -68,15 +68,15 @@ class Worker {
     this.client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 
-  async nftCount() {
+  async isPassportAvailable() {
     const balanceStr = await this.contract.balanceOf(this.wallet.address);
-    return Number(balanceStr);
+    return Number(balanceStr) !== 0;
   }
 
   async mint() {
-    const nftCount: number = await this.nftCount();
+    const isPassportAvailable = await this.isPassportAvailable();
 
-    if (nftCount !== 0) return null;
+    if (isPassportAvailable) return null;
 
     const contract = this.contract.connect(this.wallet);
 

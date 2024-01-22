@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "main": "src/index.js",
   "scripts": {
-    "start": "ts-node ./src/scripts/start.ts",
+    "collect-all": "ts-node ./src/scripts/collect-all.ts",
     "initialize": "ts-node ./src/scripts/initialize.ts",
     "update": "git reset --hard HEAD && git pull && npm install && ts-node src/scripts/update.script.ts"
   },
   "license": "ISC",
   "dependencies": {
-    "@alfar/helpers": "^0.0.20",
+    "@alfar/helpers": "^0.0.21",
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
     "date-fns": "^3.3.0",
