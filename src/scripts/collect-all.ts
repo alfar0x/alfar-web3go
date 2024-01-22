@@ -3,6 +3,7 @@ import axios from "axios";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
 import { formatRel, randomChoice, readFile } from "@alfar/helpers";
 
+import axiosRetry from "axios-retry";
 import { CONTRACT_ADDRESS } from "../helpers/constants";
 import Worker from "../worker";
 import Queue from "../helpers/queue";
@@ -10,11 +11,20 @@ import { initTable, updateAddressData } from "../helpers/table";
 import {
   getProxies,
   config,
-  getClient,
   logger,
   wait,
   getWallets,
 } from "../helpers/common";
+import { getClient } from "../helpers/get-client";
+
+axiosRetry(axios, {
+  retries: 10,
+  shouldResetTimeout: true,
+  retryDelay: () => 2 * 60 * 1000,
+  onRetry: (retryCount, error) => {
+    logger.error(`error ${error.message}. Retrying ${retryCount}`);
+  },
+});
 
 const main = async () => {
   const proxies = getProxies();

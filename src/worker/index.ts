@@ -123,7 +123,7 @@ class Worker {
 
     const quiz = await getQuiz({ client: this.client, id: quizId });
 
-    logger.info(`${this.name} | solving ${quiz.title}`);
+    logger.info(`${this.name} | answering ${quiz.title}`);
 
     for (const question of quiz.items) {
       if (question.answers?.length) continue;
@@ -137,7 +137,7 @@ class Worker {
       await postQuizAnswer({ client: this.client, id: question.id, answers });
       await getQuiz({ client: this.client, id: quizId });
 
-      logger.info(`${this.name} | question #${question.sortIndex} solved`);
+      logger.info(`${this.name} | question #${question.sortIndex} answered`);
 
       answeredCount += 1;
 
@@ -201,22 +201,33 @@ class Worker {
       await wait(5, 10);
     }
 
-    const openedGiftsCount = await this.giftOpen();
-    logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
-    await wait(5, 10);
-
-    const answeredCount = await this.quizes();
-    logger.info(`${this.name} | answered ${answeredCount} questions`);
-    await wait(5, 10);
-
-    const isChecked = await this.checkIn();
-
-    if (isChecked) {
-      logger.info(`${this.name} | check in success`);
-    } else {
-      logger.info(`${this.name} | already checked in`);
+    try {
+      const openedGiftsCount = await this.giftOpen();
+      logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
+    } catch (error: any) {
+      logger.error(`${this.name} | opening gift error ${error?.message}`);
     }
+    await wait(5, 10);
 
+    try {
+      const answeredCount = await this.quizes();
+      logger.info(`${this.name} | answered ${answeredCount} questions`);
+    } catch (error: any) {
+      logger.error(`${this.name} | answering quizes error ${error?.message}`);
+    }
+    await wait(5, 10);
+
+    try {
+      const isChecked = await this.checkIn();
+
+      if (isChecked) {
+        logger.info(`${this.name} | check in success`);
+      } else {
+        logger.info(`${this.name} | already checked in`);
+      }
+    } catch (error: any) {
+      logger.error(`${this.name} | check in error ${error?.message}`);
+    }
     await wait(5, 10);
 
     const totalGoldLeaves = await this.goldLeaves();

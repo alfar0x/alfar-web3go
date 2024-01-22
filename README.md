@@ -6,7 +6,7 @@
 - login to your web3go account
 - mint passport if needed
 - open gifts if avaliable
-- solve 6 quizes if they were not solved
+- answer 6 quizes if they were not answered
 - claim daily check in
 
 you can also check real-time data into output/table.txt file
