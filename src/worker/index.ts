@@ -107,6 +107,7 @@ class Worker {
 
     for (const gift of filtered) {
       await postGiftOpen({ client: this.client, id: gift.id });
+      logger.info(`${this.name} | opened gift: ${gift.name}`);
       await wait(5, 10);
     }
 
