@@ -16,7 +16,13 @@ export const challengeSchema = z.object({
   // verified: z.boolean(),
 });
 
-export const giftsSchema = z.array(z.object({ id: z.string() }));
+export const giftsSchema = z.array(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    openedAt: z.string().nullable(),
+  }),
+);
 
 export const quizesSchema = z.array(
   z.object({

@@ -21,6 +21,8 @@ import {
 import { getLoginMessage } from "./web3";
 import answers from "./answers";
 
+const allowedGiftNames = ["Welcome Gift"];
+
 class Worker {
   private readonly name: string;
   private readonly client: Axios;
@@ -99,11 +101,16 @@ class Worker {
 
     const gifts = await getGifts({ client: this.client });
 
-    if (!gifts.length) return 0;
+    const filtered = gifts.filter(
+      (g) => allowedGiftNames.includes(g.name) && !g.openedAt,
+    );
 
-    await postGiftOpen({ client: this.client, id: gifts[0].id });
+    for (const gift of filtered) {
+      await postGiftOpen({ client: this.client, id: gift.id });
+      await wait(5, 10);
+    }
 
-    return gifts.length;
+    return filtered.length;
   }
 
   async questions(quizId: string) {

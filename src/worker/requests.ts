@@ -54,9 +54,7 @@ export const getNftSync = async (params: { client: Axios }) => {
 export const getGifts = async (params: { client: Axios }) => {
   const { client } = params;
 
-  const { data } = await client.get("/gift", {
-    params: { type: "recent" },
-  });
+  const { data } = await client.get("/gift?type=recent");
 
   return giftsSchema.parse(data);
 };
