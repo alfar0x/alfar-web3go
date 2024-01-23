@@ -4,7 +4,10 @@ import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
 import { formatRel, randomChoice, readFile } from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
-import { CONTRACT_ADDRESS } from "../helpers/constants";
+import {
+  CONTRACT_ADDRESS,
+  MIN_SLEEP_BETWEEN_ACCS_SEC,
+} from "../helpers/constants";
 import Worker from "../worker";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
@@ -75,7 +78,7 @@ const main = async () => {
     if (!isFirstIteration) {
       const pauseSec = Math.max(
         differenceInSeconds(queueItem.nextRunTime, new Date()),
-        10,
+        MIN_SLEEP_BETWEEN_ACCS_SEC,
       );
 
       await wait(pauseSec);

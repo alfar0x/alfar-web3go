@@ -7,3 +7,5 @@ export const FILE_PRIVATE_KEYS = "input/private-keys.txt";
 export const FILE_PROXIES = "input/proxies.txt";
 export const FILE_TABLE = "output/table.txt";
 export const FILE_CONFIG = "input/config.ini";
+
+export const MIN_SLEEP_BETWEEN_ACCS_SEC = 15;
