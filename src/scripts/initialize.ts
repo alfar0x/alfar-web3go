@@ -5,16 +5,15 @@ import {
   FILE_PROXIES,
   FILE_TABLE,
 } from "../helpers/constants";
-import { config, logger } from "../helpers/common";
+import { logger } from "../helpers/common";
+import config from "../helpers/config";
 
 const initialize = () => {
   createFiles([FILE_TABLE, FILE_PRIVATE_KEYS, FILE_PROXIES, FILE_CONFIG]);
 
-  try {
-    const isReset = config.resetFile();
-    if (isReset) logger.warn(`${FILE_CONFIG} was updated`);
-  } catch (e) {
-    /* empty */
+  if (!config.checkIsFileValid()) {
+    config.resetFile();
+    logger.warn(`${FILE_CONFIG} was updated`);
   }
 };
 

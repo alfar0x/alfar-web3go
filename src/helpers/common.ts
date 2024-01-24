@@ -1,9 +1,7 @@
 import {
-  IniConfig,
   evmPrivateKeySchema,
   formatRel,
   formatShortString,
-  iniNumberSchema,
   initDefaultLogger,
   parseProxy,
   randomInt,
@@ -11,9 +9,8 @@ import {
   sleep,
 } from "@alfar/helpers";
 import { addHours, minutesToMilliseconds } from "date-fns";
-import { z } from "zod";
 import { ethers } from "ethers";
-import { FILE_CONFIG, FILE_PRIVATE_KEYS, FILE_PROXIES } from "./constants";
+import { FILE_PRIVATE_KEYS, FILE_PROXIES } from "./constants";
 
 export const logger = initDefaultLogger();
 
@@ -67,36 +64,3 @@ export const endOfNextUTCDay = () => {
   const start = startOfNextUTCDay();
   return addHours(start, 24).getTime();
 };
-
-const fixedSchema = z
-  .object({
-    common: z.object({
-      rpc: z.string().url(),
-      isRandomProxy: z.boolean(),
-    }),
-    collectAll: z.object({
-      minutesToInitializeAll: iniNumberSchema,
-      isNewTaskAfterFinish: z.boolean(),
-    }),
-  })
-  .strict();
-
-export const config = new IniConfig({
-  fileName: FILE_CONFIG,
-  fixedSchema,
-  dynamicSchema: z.object({}),
-  onDynamicError: logger.error,
-  defaultValues: {
-    fixed: {
-      common: {
-        rpc: "https://rpc.ankr.com/bsc",
-        isRandomProxy: true,
-      },
-      collectAll: {
-        minutesToInitializeAll: 1440,
-        isNewTaskAfterFinish: true,
-      },
-    },
-    dynamic: {},
-  },
-});

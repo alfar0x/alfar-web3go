@@ -21,9 +21,10 @@ there will be next columns: address, updated at time, gold leaves count. Table w
 1. Fill in `input/config.ini`, `input/private-keys.txt`, and `input/proxies.txt`.
 
 ### Config
+Dynamic scope values can be changed during program run
+
 - rpc: BSC RPC url
 - isRandomProxy: Decide if system picks a random proxy or uses the wallet number
-
 - minutesToInitializeAll: Time to set up all wallets the first time
 - isNewTaskAfterFinish: Choose if wallets run once or keep going
 

@@ -1,3 +1,8 @@
+// eslint-disable-next-line import/order
+import config from "../helpers/config";
+
+config.initialize();
+
 import { ethers } from "ethers";
 import axios from "axios";
 import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
@@ -11,13 +16,7 @@ import {
 import Worker from "../worker";
 import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
-import {
-  getProxies,
-  config,
-  logger,
-  wait,
-  getWallets,
-} from "../helpers/common";
+import { getProxies, logger, wait, getWallets } from "../helpers/common";
 import { getClient } from "../helpers/get-client";
 
 axiosRetry(axios, {
@@ -111,7 +110,7 @@ const main = async () => {
       logger.info("ip changed");
     }
 
-    if (config.fixed.collectAll.isNewTaskAfterFinish) {
+    if (config.dynamic().collectAll.isNewTaskAfterFinish) {
       const nextRunSec = queue.push(queueItem);
       logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
