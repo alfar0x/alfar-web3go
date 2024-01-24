@@ -88,6 +88,7 @@ export const getClient = (params: { proxy?: ProxyItem }) => {
     onRetry: (retryCount, error) => {
       logger.error(`error ${error.message}. Retrying ${retryCount}`);
     },
+    retryCondition: () => true,
   });
 
   return client;

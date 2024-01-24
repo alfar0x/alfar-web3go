@@ -21,12 +21,13 @@ import {
 import { getClient } from "../helpers/get-client";
 
 axiosRetry(axios, {
-  retries: 10,
+  retries: 3,
   shouldResetTimeout: true,
   retryDelay: () => 2 * 60 * 1000,
   onRetry: (retryCount, error) => {
     logger.error(`error ${error.message}. Retrying ${retryCount}`);
   },
+  retryCondition: () => true,
 });
 
 const main = async () => {
