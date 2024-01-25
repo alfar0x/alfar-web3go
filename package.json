@@ -5,11 +5,11 @@
   "scripts": {
     "collect-all": "ts-node ./src/scripts/collect-all.ts",
     "initialize": "ts-node ./src/scripts/initialize.ts",
-    "update": "git reset --hard HEAD && git pull && npm install && ts-node src/scripts/update.script.ts"
+    "update": "git reset --hard HEAD && git pull && npm install && ts-node src/scripts/update.ts"
   },
   "license": "ISC",
   "dependencies": {
-    "@alfar/helpers": "^0.0.27",
+    "@alfar/helpers": "^0.0.29",
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
     "date-fns": "^3.3.0",

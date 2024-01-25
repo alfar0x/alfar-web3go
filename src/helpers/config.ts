@@ -44,7 +44,6 @@ const config = new IniConfig({
       },
     },
   },
-  disableInitialize: true,
 });
 
 export default config;
