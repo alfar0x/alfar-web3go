@@ -203,7 +203,9 @@ class Worker {
 
     try {
       const openedGiftsCount = await this.giftOpen();
-      logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
+      if (openedGiftsCount) {
+        logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
+      }
     } catch (error: any) {
       logger.error(`${this.name} | opening gift error ${error?.message}`);
     }
@@ -211,7 +213,9 @@ class Worker {
 
     try {
       const answeredCount = await this.quizes();
-      logger.info(`${this.name} | answered ${answeredCount} questions`);
+      if (answeredCount) {
+        logger.info(`${this.name} | answered ${answeredCount} questions`);
+      }
     } catch (error: any) {
       logger.error(`${this.name} | answering quizes error ${error?.message}`);
     }
