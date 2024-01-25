@@ -2,7 +2,7 @@ import { Axios } from "axios";
 import { ethers } from "ethers";
 
 import { isToday } from "date-fns";
-import { randomFloat, shuffle } from "@alfar/helpers";
+import { randomFloat, shuffle, sleep } from "@alfar/helpers";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
 import { logger, wait } from "../helpers/common";
 import {
@@ -199,27 +199,35 @@ class Worker {
         `${this.name} | passport mint success https://bscscan.com/tx/${hash}`,
       );
       await wait(5, 10);
+    } else {
+      await sleep(1);
     }
 
     try {
       const openedGiftsCount = await this.giftOpen();
       if (openedGiftsCount) {
         logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
+        await wait(5, 10);
+      } else {
+        await sleep(1);
       }
     } catch (error: any) {
       logger.error(`${this.name} | opening gift error ${error?.message}`);
+      await wait(5, 10);
     }
-    await wait(5, 10);
 
     try {
       const answeredCount = await this.quizes();
       if (answeredCount) {
         logger.info(`${this.name} | answered ${answeredCount} questions`);
+        await wait(5, 10);
+      } else {
+        await sleep(1);
       }
     } catch (error: any) {
       logger.error(`${this.name} | answering quizes error ${error?.message}`);
+      await wait(5, 10);
     }
-    await wait(5, 10);
 
     try {
       const isChecked = await this.checkIn();
