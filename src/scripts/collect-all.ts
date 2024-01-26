@@ -18,6 +18,7 @@ import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import { getProxies, logger, wait, getWallets } from "../helpers/common";
 import { getClient } from "../helpers/get-client";
+import sendReqUntilOk from "../helpers/sendReqUntilOk";
 
 axiosRetry(axios, {
   retries: 3,
@@ -106,7 +107,7 @@ const main = async () => {
     }
 
     if (proxy.changeUrl) {
-      await axios.get(proxy.changeUrl);
+      await sendReqUntilOk(proxy.changeUrl);
       logger.info("ip changed");
     }
 
