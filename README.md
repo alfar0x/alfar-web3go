@@ -1,56 +1,55 @@
-# web3go by [alfar](https://t.me/+FozX3VZA0RIyNWY6)
+# web3go від [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
-**Note:** This script is still in development. Use it with on your own risk!
+**Примітка:** Цей скрипт все ще знаходиться в розробці. Використовуйте його на свій страх і ризик!
 
-## What the Script Does
-- login to your web3go account
-- mint passport if needed
-- open gifts if avaliable
-- answer 6 quizes if they were not answered
-- claim daily check in
+## Що може цей скрипт
+- увійти в свій обліковий запис web3go
+- створити паспорт, якщо потрібно
+- відкрити подарунки, якщо вони доступні
+- відповісти на 6 вікторин, якщо доступні
+- отримати checkIn бонус
 
-you can also check real-time data into output/table.txt file
-there will be next columns: address, updated at time, gold leaves count. Table will be updated for after each account run
+Ви також можете перевірити дані в реальному часі у файлі output/table.txt. Таблиця буде оновлюється після виконання кожного акаунту.
 
-## How to Install
-1. Download and install [Node.js](https://nodejs.org/en/download).
-1. Install command - `npm install`.
-1. Set up command - `npm run initialize`.
+## Як встановити
+1. Завантажте та встановіть [Node.js](https://nodejs.org/en/download).
+1. Встановіть команду - `npm install`.
+1. Запустіть налаштування - `npm run initialize`.
 
-## Setting Up
-1. Fill in `input/config.ini`, `input/private-keys.txt`, and `input/proxies.txt`.
+## Налаштування
+1. Заповніть файли `input/config.ini`, `input/private-keys.txt` та `input/proxies.txt`.
 
 ### Config
-Dynamic scope values can be changed during program run
+Значення в dynamic скупі можна змінювати під час виконання програми
 
-- rpc: BSC RPC url
-- isRandomProxy: Decide if system picks a random proxy or uses the wallet number
-- minutesToInitializeAll: Time to set up all wallets the first time
-- isNewTaskAfterFinish: Choose if wallets run once or keep going
+- rpc: bsc rpc
+- isRandomProxy:  __true__ - система вибере випадковий проксі, __false__ - використовуватиме номер гаманця
+- minutesToInitializeAll: Час у хвилинах для налаштування всіх гаманців в першій ітерації. Для великої кількості гаманців можна поставити наприклад 7 днів (у хвилинах), щоб реєстрація була плавною
+- isNewTaskAfterFinish (dynamic): Якщо __true__, то для кожного акаунту буде створена задача на наступний день, щоб зібрати checkIn бонус, у випадку налаштування __false__ задачі створяться тільки 1 раз
 
 ### Private keys
-Each line is one private key, with values separated by **;**
-- private key: you can use private key with __0x__ or without it
-- name (optional): if you want to specify name you can add it
+Кожен рядок - один приватний ключ, зі значеннями, розділеними **;**
+- private key: ви можете використовувати приватний ключ з __0x__ або без нього
+- name (необов'язково): якщо ви хочете вказати ім'я, ви можете додати його
 
-Example private key: __0xaaaaabbbbb__ or __0xaaaaabbbbb;wallet1__ or __aaaaabbbbb__
+Приклад приватного ключа: __0xaaaaabbbbb__ або __0xaaaaabbbbb;wallet1__ або __aaaaabbbbb__
 
 ### Proxies
-Each line is one proxy, with values separated by **;**
-- type: Pick __http__ or __socks__
-- host: IP address of the proxy server
-- port: Port number for the proxy server
-- username: Your username for the proxy
-- password: Your password for the proxy
-- changeUrl (optional for mobile proxy): Web link to change proxy settings
+Кожен рядок - один проксі, зі значеннями, розділеними **;**
+- type: Виберіть __http__ або __socks__
+- host: IP-адреса сервера проксі
+- port: Номер порту для сервера проксі
+- username: Ваше ім'я користувача для проксі
+- password: Ваш пароль для проксі
+- changeUrl (необов'язково для мобільного проксі): Веб-посилання для зміни налаштувань проксі
 
-Example proxy: __http;11.1.1.1;8000;user;password__ or __socks;11.1.1.1;8000;user;password;https://provider-url.com/change-proxy__ (mobile)
+Приклад проксі: __http;11.1.1.1;8000;user;password__ або __socks;11.1.1.1;8000;user;password;https://provider-url.com/change-proxy__ (мобільний)
 
-## Collect all mode
-1. Type `npm run collect-all` and press Enter.
+## Режим збору всіх
+1. Введіть `npm run collect-all` і натисніть Enter.
 
-## How to Update
-1. Type `npm run update`.
-1. If there are new settings, system will create backup file of previous config and create new one `input/config.ini` file.
+## Як оновити
+1. Введіть `npm run update`.
+1. Якщо є нові налаштування, система створить резервну копію попереднього конфігураційного файлу та створить новий файл `input/config.ini`, який потрібно оновити!.
 
-Discover more scripts on our [Telegram channel](https://t.me/+FozX3VZA0RIyNWY6).
+Наш канал в [Telegram](https://t.me/+FozX3VZA0RIyNWY6).
