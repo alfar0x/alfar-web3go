@@ -20,8 +20,13 @@ export const wait = async (minSec: number, maxSec?: number) => {
   await sleep(sec);
 };
 
-export const getProxies = () =>
-  readByLine(FILE_PROXIES).map((p) => parseProxy(p));
+export const getProxies = () => {
+  const data = readByLine(FILE_PROXIES);
+
+  if (!data.length) throw new Error("proxies is required!");
+
+  return data.map((p) => parseProxy(p));
+};
 
 export const getWallets = (provider: ethers.providers.JsonRpcProvider) => {
   return readByLine(FILE_PRIVATE_KEYS).map((item, index) => {
