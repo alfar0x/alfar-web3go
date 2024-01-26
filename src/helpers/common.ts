@@ -25,7 +25,11 @@ export const getProxies = () => {
 
   if (!data.length) throw new Error("proxies is required!");
 
-  return data.map((p) => parseProxy(p));
+  try {
+    return data.map((p) => parseProxy(p));
+  } catch (error: any) {
+    throw new Error(`proxy error: ${error?.message}`);
+  }
 };
 
 export const getWallets = (provider: ethers.providers.JsonRpcProvider) => {
