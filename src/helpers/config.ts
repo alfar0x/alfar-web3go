@@ -19,6 +19,8 @@ const dynamicSchema = z
   .object({
     collectAll: z.object({
       isNewTaskAfterFinish: z.boolean(),
+      errorWaitSec: iniNumberSchema,
+      errorRetryTimes: iniNumberSchema,
     }),
   })
   .strict();
@@ -41,6 +43,8 @@ const config = new IniConfig({
     dynamic: {
       collectAll: {
         isNewTaskAfterFinish: true,
+        errorWaitSec: 10,
+        errorRetryTimes: 3,
       },
     },
   },

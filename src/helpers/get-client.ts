@@ -3,8 +3,12 @@ import axiosRetry from "axios-retry";
 import axios from "axios";
 import { logger } from "./common";
 
-export const getClient = (params: { proxy?: ProxyItem }) => {
-  const { proxy } = params;
+export const getClient = (params: {
+  proxy?: ProxyItem;
+  errorWaitSec?: number;
+  errorRetryTimes?: number;
+}) => {
+  const { proxy, errorWaitSec = 10, errorRetryTimes = 3 } = params;
 
   const agent = getProxyAgent(proxy);
 
@@ -82,9 +86,9 @@ export const getClient = (params: { proxy?: ProxyItem }) => {
   );
 
   axiosRetry(client, {
-    retries: 3,
+    retries: errorRetryTimes,
     shouldResetTimeout: true,
-    retryDelay: () => 2 * 60 * 1000,
+    retryDelay: () => errorWaitSec * 1000,
     onRetry: (retryCount, error) => {
       logger.error(`error ${error.message}. Retrying ${retryCount}`);
     },

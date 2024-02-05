@@ -94,7 +94,11 @@ const main = async () => {
       : proxies[index];
 
     try {
-      const client = getClient({ proxy });
+      const client = getClient({
+        proxy,
+        errorRetryTimes: config.dynamic().collectAll.errorRetryTimes,
+        errorWaitSec: config.dynamic().collectAll.errorWaitSec,
+      });
 
       const worker = new Worker({ name, client, wallet, contract });
 
