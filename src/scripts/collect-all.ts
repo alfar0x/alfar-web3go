@@ -44,12 +44,6 @@ const main = async () => {
 
   const wallets = getWallets(provider);
 
-  if (!config.fixed.common.isRandomProxy && wallets.length !== proxies.length) {
-    throw new Error(
-      `private keys count must be equals to proxies count if isRandomProxy=false`,
-    );
-  }
-
   initTable(wallets.map((w) => w.wallet.address));
 
   const timeToInit = addMinutes(
@@ -88,6 +82,15 @@ const main = async () => {
     const { name, wallet, index } = queueItem;
 
     const proxies = await getProxies();
+
+    if (
+      !config.fixed.common.isRandomProxy &&
+      wallets.length !== proxies.length
+    ) {
+      throw new Error(
+        `private keys count must be equals to proxies count if isRandomProxy=false`,
+      );
+    }
 
     const proxy = config.fixed.common.isRandomProxy
       ? randomChoice(proxies)
