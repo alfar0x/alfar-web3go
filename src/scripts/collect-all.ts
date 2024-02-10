@@ -18,7 +18,7 @@ import Queue from "../helpers/queue";
 import { initTable, updateAddressData } from "../helpers/table";
 import { getProxies, logger, wait, getWallets } from "../helpers/common";
 import { getClient } from "../helpers/get-client";
-import sendReqUntilOk from "../helpers/sendReqUntilOk";
+import sendReqUntilOk from "../helpers/send-req-until-ok";
 
 axiosRetry(axios, {
   retries: 3,
@@ -31,8 +31,6 @@ axiosRetry(axios, {
 });
 
 const main = async () => {
-  const proxies = getProxies();
-
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
@@ -88,6 +86,8 @@ const main = async () => {
     isFirstIteration = false;
 
     const { name, wallet, index } = queueItem;
+
+    const proxies = await getProxies();
 
     const proxy = config.fixed.common.isRandomProxy
       ? randomChoice(proxies)

@@ -20,16 +20,29 @@ export const wait = async (minSec: number, maxSec?: number) => {
   await sleep(sec);
 };
 
-export const getProxies = () => {
-  const data = readByLine(FILE_PROXIES);
+export const getProxies = async () => {
+  let retry = 5;
 
-  if (!data.length) throw new Error("proxies is required!");
+  while (retry) {
+    try {
+      const data = readByLine(FILE_PROXIES);
 
-  try {
-    return data.map((p) => parseProxy(p));
-  } catch (error: any) {
-    throw new Error(`proxy error: ${error?.message}`);
+      if (!data.length) throw new Error("proxies is required!");
+
+      try {
+        return data.map((p) => parseProxy(p));
+      } catch (error: any) {
+        throw new Error(`proxy error: ${error?.message}`);
+      }
+    } catch (error: any) {
+      if (!retry) throw error;
+      logger.error(`proxy error: ${error?.message}`);
+      retry -= 1;
+      await sleep(15);
+    }
   }
+
+  throw new Error("proxy retry count 0");
 };
 
 export const getWallets = (provider: ethers.providers.JsonRpcProvider) => {
