@@ -10,6 +10,7 @@ const fixedSchema = z
       isRandomProxy: z.boolean(),
     }),
     collectAll: z.object({
+      minutesBeforeStart: iniNumberSchema,
       minutesToInitializeAll: iniNumberSchema,
     }),
   })
@@ -37,6 +38,7 @@ const config = new IniConfig({
         isRandomProxy: true,
       },
       collectAll: {
+        minutesBeforeStart: 0,
         minutesToInitializeAll: 1440,
       },
     },

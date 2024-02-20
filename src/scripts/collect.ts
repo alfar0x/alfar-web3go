@@ -63,6 +63,10 @@ const main = async () => {
 
   let isFirstIteration = true;
 
+  if (config.fixed.collectAll.minutesBeforeStart >= 0) {
+    await wait(Math.round(config.fixed.collectAll.minutesBeforeStart * 60));
+  }
+
   while (!queue.isEmpty()) {
     const queueItem = queue.next();
 
