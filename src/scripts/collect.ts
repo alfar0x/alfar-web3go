@@ -31,6 +31,10 @@ axiosRetry(axios, {
 });
 
 const main = async () => {
+  if (config.fixed.collectAll.minutesBeforeStart >= 0) {
+    await wait(Math.round(config.fixed.collectAll.minutesBeforeStart * 60));
+  }
+
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
@@ -62,10 +66,6 @@ const main = async () => {
   );
 
   let isFirstIteration = true;
-
-  if (config.fixed.collectAll.minutesBeforeStart >= 0) {
-    await wait(Math.round(config.fixed.collectAll.minutesBeforeStart * 60));
-  }
 
   while (!queue.isEmpty()) {
     const queueItem = queue.next();
