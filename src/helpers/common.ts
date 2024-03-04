@@ -16,7 +16,9 @@ export const logger = initDefaultLogger();
 
 export const wait = async (minSec: number, maxSec?: number) => {
   const sec = maxSec ? randomInt(minSec, maxSec) : minSec;
-  logger.info(`sleeping until ${formatRel(sec)}`);
+  if (sec > 60) {
+    logger.info(`sleeping until ${formatRel(sec)}`);
+  }
   await sleep(sec);
 };
 
@@ -46,19 +48,21 @@ export const getProxies = async () => {
 };
 
 export const getWallets = (provider: ethers.providers.JsonRpcProvider) => {
-  return readByLine(FILE_PRIVATE_KEYS).map((item, index) => {
-    const [prKey, name] = item.split(";");
+  return readByLine(FILE_PRIVATE_KEYS)
+    .filter(Boolean)
+    .map((item, index) => {
+      const [prKey, name] = item.trim().split(";");
 
-    const parsedPrivateKey = evmPrivateKeySchema.parse(prKey);
+      const parsedPrivateKey = evmPrivateKeySchema.parse(prKey);
 
-    const wallet = new ethers.Wallet(parsedPrivateKey, provider);
+      const wallet = new ethers.Wallet(parsedPrivateKey, provider);
 
-    if (name) return { index, wallet, name };
+      if (name) return { index, wallet, name };
 
-    const addressName = formatShortString(wallet.address, 6, 4);
+      const addressName = formatShortString(wallet.address, 6, 4);
 
-    return { index, wallet, name: addressName };
-  });
+      return { index, wallet, name: addressName };
+    });
 };
 
 export const startOfNextUTCDay = () => {

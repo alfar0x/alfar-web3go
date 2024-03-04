@@ -109,7 +109,7 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves } = await worker.run();
+      const { totalGoldLeaves } = await worker.collect();
 
       updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
     } catch (error) {
@@ -119,7 +119,7 @@ const main = async () => {
 
     if (proxy.changeUrl) {
       await sendReqUntilOk(proxy.changeUrl);
-      logger.info("ip changed");
+      // logger.info("ip changed");
     }
 
     if (config.dynamic().collectAll.isNewTaskAfterFinish) {

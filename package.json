@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "main": "src/index.js",
   "scripts": {
-    "collect": "ts-node ./src/scripts/collect.ts",
+    "register": "ts-node ./src/scripts/register.ts",
+    "checkin": "ts-node ./src/scripts/checkin.ts",
     "initialize": "ts-node ./src/scripts/initialize.ts",
     "update": "git reset --hard HEAD && git pull && npm install && ts-node src/scripts/update.ts"
   },

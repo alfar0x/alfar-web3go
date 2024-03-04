@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Axios } from "axios";
 import { ethers } from "ethers";
 
@@ -185,7 +186,7 @@ class Worker {
     return todaysCheckIn.status === "checked";
   }
 
-  async run() {
+  async register() {
     logger.info(`${this.wallet.address} | start`);
 
     await this.login();
@@ -244,7 +245,31 @@ class Worker {
 
     const totalGoldLeaves = await this.goldLeaves();
     logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
-    await wait(5, 10);
+
+    return { totalGoldLeaves };
+  }
+
+  async collect() {
+    logger.info(`${this.wallet.address} | start`);
+
+    await this.login();
+    // logger.info(`${this.name} | login success`);
+    await wait(1);
+
+    try {
+      const isChecked = await this.checkIn();
+
+      if (!isChecked) {
+        logger.info(`${this.name} | already checked in`);
+      }
+    } catch (error: any) {
+      logger.error(`${this.name} | check in error ${error?.message}`);
+    }
+
+    await wait(1);
+
+    const totalGoldLeaves = await this.goldLeaves();
+    logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
 
     return { totalGoldLeaves };
   }
