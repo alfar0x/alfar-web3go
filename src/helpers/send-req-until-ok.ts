@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { sleep } from "@alfar/helpers";
-import { logger } from "./common";
+import { logger, wait } from "./common";
 
 const sendReqUntilOk = async (
   url: string,
@@ -17,7 +17,7 @@ const sendReqUntilOk = async (
     } catch (error) {
       logger.error((error as Error).message);
 
-      await sleep(15);
+      await wait(15);
     }
   }
 };
