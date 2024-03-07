@@ -6,7 +6,7 @@ config.initialize();
 import { ethers } from "ethers";
 import axios from "axios";
 import { differenceInSeconds } from "date-fns";
-import { formatRel, randomChoice, readFile } from "@alfar/helpers";
+import { formatRel, randomChoice, readFile, shuffle } from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
 import {
@@ -51,7 +51,7 @@ const main = async () => {
   initTable(wallets.map((w) => w.wallet.address));
 
   const queue = new Queue(
-    wallets,
+    shuffle(wallets),
     config.fixed.collectAll.minSleepSecOnInit,
     config.fixed.collectAll.maxSleepSecOnInit,
   );
