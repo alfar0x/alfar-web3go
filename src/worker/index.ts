@@ -253,7 +253,7 @@ class Worker {
     logger.info(`${this.wallet.address} | start`);
 
     await this.login();
-    // logger.info(`${this.name} | login success`);
+    logger.info(`${this.name} | login success`);
     await wait(1);
 
     try {
@@ -261,6 +261,8 @@ class Worker {
 
       if (!isChecked) {
         logger.info(`${this.name} | already checked in`);
+      } else {
+        logger.info(`${this.name} | check in success`);
       }
     } catch (error: any) {
       logger.error(`${this.name} | check in error ${error?.message}`);
