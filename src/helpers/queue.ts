@@ -34,7 +34,7 @@ class Queue {
       const nextRunTime = prevTime + sleepSec * 1000;
       this.items.push({ name, wallet, index, nextRunTime });
 
-      prevTime += nextRunTime;
+      prevTime = nextRunTime;
     }
 
     this.sort();
