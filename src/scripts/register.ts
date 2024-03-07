@@ -56,12 +56,8 @@ const main = async () => {
     config.fixed.collectAll.maxSleepSecOnInit,
   );
 
-  const secondsToInit = Math.round(
-    ((config.fixed.collectAll.minSleepSecOnInit +
-      config.fixed.collectAll.maxSleepSecOnInit) *
-      wallets.length) /
-      2,
-  );
+  const lastRunTime = queue.lastRunTime();
+  const secondsToInit = differenceInSeconds(lastRunTime, new Date());
 
   logger.info(
     `approx all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,

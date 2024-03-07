@@ -1,5 +1,4 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { sleep } from "@alfar/helpers";
 import { logger, wait } from "./common";
 
 const sendReqUntilOk = async (

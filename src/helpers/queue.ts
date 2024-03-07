@@ -70,6 +70,10 @@ class Queue {
 
     return nextRunSec;
   }
+
+  public lastRunTime() {
+    return this.items[this.items.length - 1].nextRunTime;
+  }
 }
 
 export default Queue;
