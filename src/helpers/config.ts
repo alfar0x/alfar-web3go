@@ -11,7 +11,8 @@ const fixedSchema = z
     }),
     collectAll: z.object({
       minutesBeforeStart: iniNumberSchema,
-      minutesToInitializeAll: iniNumberSchema,
+      minSleepSecOnInit: iniNumberSchema,
+      maxSleepSecOnInit: iniNumberSchema,
     }),
   })
   .strict();
@@ -39,7 +40,8 @@ const config = new IniConfig({
       },
       collectAll: {
         minutesBeforeStart: 0,
-        minutesToInitializeAll: 1440,
+        minSleepSecOnInit: 10,
+        maxSleepSecOnInit: 30,
       },
     },
     dynamic: {

@@ -5,7 +5,7 @@ config.initialize();
 
 import { ethers } from "ethers";
 import axios from "axios";
-import { addMinutes, differenceInSeconds, minutesToSeconds } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import { formatRel, randomChoice, readFile } from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
@@ -50,19 +50,21 @@ const main = async () => {
 
   initTable(wallets.map((w) => w.wallet.address));
 
-  const timeToInit = addMinutes(
-    new Date(),
-    config.fixed.collectAll.minutesToInitializeAll,
-  ).getTime();
+  const queue = new Queue(
+    wallets,
+    config.fixed.collectAll.minSleepSecOnInit,
+    config.fixed.collectAll.maxSleepSecOnInit,
+  );
 
-  const queue = new Queue(wallets, timeToInit);
-
-  const secondsToInit = minutesToSeconds(
-    config.fixed.collectAll.minutesToInitializeAll,
+  const secondsToInit = Math.round(
+    ((config.fixed.collectAll.minSleepSecOnInit +
+      config.fixed.collectAll.maxSleepSecOnInit) *
+      wallets.length) /
+      2,
   );
 
   logger.info(
-    `all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
+    `approx all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
   );
 
   let isFirstIteration = true;

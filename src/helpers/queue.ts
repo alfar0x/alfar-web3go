@@ -19,15 +19,22 @@ type Item = {
 class Queue {
   public readonly items: Item[];
 
-  public constructor(items: RawItem[], endTime: number) {
+  public constructor(
+    items: RawItem[],
+    minSleepSec: number,
+    maxSleepSec: number,
+  ) {
     this.items = [];
 
-    const now = new Date().getTime() + 2 * 60 * 1000;
+    let prevTime = new Date().getTime() + 10 * 1000;
 
     for (const item of items) {
       const { name, wallet, index } = item;
-      const nextRunTime = randomInt(now, endTime);
+      const sleepSec = randomInt(minSleepSec, maxSleepSec);
+      const nextRunTime = prevTime + sleepSec * 1000;
       this.items.push({ name, wallet, index, nextRunTime });
+
+      prevTime += nextRunTime;
     }
 
     this.sort();
