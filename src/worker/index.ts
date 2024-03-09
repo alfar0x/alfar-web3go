@@ -254,7 +254,7 @@ class Worker {
 
     await this.login();
     logger.info(`${this.name} | login success`);
-    await wait(1);
+    await wait(2);
 
     try {
       const isChecked = await this.checkIn();
@@ -268,7 +268,7 @@ class Worker {
       logger.error(`${this.name} | check in error ${error?.message}`);
     }
 
-    await wait(1);
+    await wait(2);
 
     const totalGoldLeaves = await this.goldLeaves();
     logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
