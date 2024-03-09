@@ -31,12 +31,12 @@ axiosRetry(axios, {
 });
 
 const main = async () => {
-  const minutesBeforeStart = addMinutes(
-    startOfTomorrow(),
-    randomInt(180, 240),
-  ).getTime();
+  const secBeforeStart = differenceInSeconds(
+    addMinutes(startOfTomorrow(), randomInt(180, 240)),
+    new Date(),
+  );
 
-  await wait(Math.round(minutesBeforeStart * 60));
+  await wait(secBeforeStart);
 
   const abi = readFile("./assets/abi.json");
 
