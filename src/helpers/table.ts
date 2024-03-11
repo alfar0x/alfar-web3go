@@ -26,10 +26,14 @@ const formatObjectItem = (
   address: string,
   updatedAt: Date,
   totalLeaves?: number,
+  checkInStreak?: number,
 ) => {
   const updatedAtStr = format(updatedAt, dateFormat);
   const totalLeavesStr = totalLeaves || "";
-  return [address, updatedAtStr, totalLeavesStr].join(divider);
+  const checkInStreakStr = checkInStreak || "";
+  return [address, updatedAtStr, checkInStreakStr, totalLeavesStr].join(
+    divider,
+  );
 };
 
 export const initEmptyItem = (address: string) => {
@@ -68,9 +72,9 @@ export const initTable = (addresses: string[]) => {
 
 export const updateAddressData = (
   address: string,
-  params: { totalLeaves?: number },
+  params: { totalLeaves?: number; checkInStreak?: number },
 ) => {
-  const { totalLeaves } = params;
+  const { totalLeaves, checkInStreak } = params;
   const lastData = readByLine(FILE_TABLE);
 
   const updatedData = lastData.map((d) => {
@@ -80,7 +84,7 @@ export const updateAddressData = (
 
     if (parsed.address !== address) return d;
 
-    return formatObjectItem(address, new Date(), totalLeaves);
+    return formatObjectItem(address, new Date(), totalLeaves, checkInStreak);
   });
 
   const data = updatedData.join("\n");

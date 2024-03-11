@@ -98,3 +98,5 @@ export const recentCheckInsSchema = z.array(
     pointsIfChecked: z.number(),
   }),
 );
+
+export const checkInsStreakSchema = z.number();

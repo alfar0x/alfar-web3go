@@ -6,7 +6,7 @@ config.initialize();
 import { ethers } from "ethers";
 import axios from "axios";
 import { differenceInSeconds } from "date-fns";
-import { formatRel, randomChoice, readFile } from "@alfar/helpers";
+import { formatRel, randomChoice, readFile, shuffle } from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
 import {
@@ -51,7 +51,7 @@ const main = async () => {
   initTable(wallets.map((w) => w.wallet.address));
 
   const queue = new Queue(
-    wallets,
+    shuffle(wallets),
     config.fixed.collectAll.minSleepSecOnInit,
     config.fixed.collectAll.maxSleepSecOnInit,
   );
@@ -107,9 +107,13 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves } = await worker.collect();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { totalGoldLeaves, checkInStreak } = await worker.collect();
 
-      updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
+      updateAddressData(wallet.address, {
+        totalLeaves: totalGoldLeaves,
+        checkInStreak,
+      });
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
       await wait(10);
@@ -117,7 +121,7 @@ const main = async () => {
 
     if (proxy.changeUrl) {
       await sendReqUntilOk(proxy.changeUrl);
-      // logger.info("ip changed");
+      logger.info("ip changed");
     }
 
     if (config.dynamic().collectAll.isNewTaskAfterFinish) {

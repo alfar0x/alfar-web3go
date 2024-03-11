@@ -2,6 +2,7 @@ import { Axios } from "axios";
 import { subDays, addDays, format } from "date-fns";
 import {
   challengeSchema,
+  checkInsStreakSchema,
   giftsSchema,
   goldLeavesSchema,
   nonceSchema,
@@ -110,4 +111,14 @@ export const getRecentCheckIns = async (params: { client: Axios }) => {
   );
 
   return recentCheckInsSchema.parse(data);
+};
+
+export const getCheckInStreakDays = async (params: { client: Axios }) => {
+  const day = format(new Date(), "yyyyMMdd");
+
+  const { client } = params;
+
+  const { data } = await client.get(`/checkin/streakdays?day=${day}`);
+
+  return checkInsStreakSchema.parse(data);
 };

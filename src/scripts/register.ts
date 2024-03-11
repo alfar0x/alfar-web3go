@@ -107,9 +107,12 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves } = await worker.register();
+      const { totalGoldLeaves, checkInStreak } = await worker.register();
 
-      updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
+      updateAddressData(wallet.address, {
+        totalLeaves: totalGoldLeaves,
+        checkInStreak,
+      });
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
       await wait(10);

@@ -7,6 +7,7 @@ import { randomFloat, shuffle, sleep } from "@alfar/helpers";
 import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
 import { logger, wait } from "../helpers/common";
 import {
+  getCheckInStreakDays,
   getGifts,
   getGoldLeaves,
   getNftSync,
@@ -186,6 +187,12 @@ class Worker {
     return todaysCheckIn.status === "checked";
   }
 
+  async checkInStreak() {
+    const data = await getCheckInStreakDays({ client: this.client });
+
+    return data;
+  }
+
   async register() {
     logger.info(`${this.wallet.address} | start`);
 
@@ -244,9 +251,13 @@ class Worker {
     await wait(5, 10);
 
     const totalGoldLeaves = await this.goldLeaves();
-    logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
+    const checkInStreak = await this.checkInStreak();
 
-    return { totalGoldLeaves };
+    logger.info(
+      `${this.name} | current leave count: ${totalGoldLeaves} | streak: ${checkInStreak}`,
+    );
+
+    return { totalGoldLeaves, checkInStreak };
   }
 
   async collect() {
@@ -259,10 +270,10 @@ class Worker {
     try {
       const isChecked = await this.checkIn();
 
-      if (!isChecked) {
-        logger.info(`${this.name} | already checked in`);
-      } else {
+      if (isChecked) {
         logger.info(`${this.name} | check in success`);
+      } else {
+        logger.info(`${this.name} | already checked in`);
       }
     } catch (error: any) {
       logger.error(`${this.name} | check in error ${error?.message}`);
@@ -271,9 +282,13 @@ class Worker {
     await wait(2);
 
     const totalGoldLeaves = await this.goldLeaves();
-    logger.info(`${this.name} | current leave count: ${totalGoldLeaves}`);
+    const checkInStreak = await this.checkInStreak();
 
-    return { totalGoldLeaves };
+    logger.info(
+      `${this.name} | current leave count: ${totalGoldLeaves} | streak: ${checkInStreak}`,
+    );
+
+    return { totalGoldLeaves, checkInStreak };
   }
 }
 

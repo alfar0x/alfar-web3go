@@ -6,7 +6,13 @@ config.initialize();
 import { ethers } from "ethers";
 import axios from "axios";
 import { addMinutes, differenceInSeconds, startOfTomorrow } from "date-fns";
-import { formatRel, randomChoice, randomInt, readFile } from "@alfar/helpers";
+import {
+  formatRel,
+  randomChoice,
+  randomInt,
+  readFile,
+  shuffle,
+} from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
 import {
@@ -54,7 +60,7 @@ const main = async () => {
   initTable(wallets.map((w) => w.wallet.address));
 
   const queue = new Queue(
-    wallets,
+    shuffle(wallets),
     config.fixed.collectAll.minSleepSecOnInit,
     config.fixed.collectAll.maxSleepSecOnInit,
   );
@@ -110,9 +116,12 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves } = await worker.collect();
+      const { totalGoldLeaves, checkInStreak } = await worker.collect();
 
-      updateAddressData(wallet.address, { totalLeaves: totalGoldLeaves });
+      updateAddressData(wallet.address, {
+        totalLeaves: totalGoldLeaves,
+        checkInStreak,
+      });
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
       await wait(10);
