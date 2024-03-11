@@ -100,3 +100,13 @@ export const recentCheckInsSchema = z.array(
 );
 
 export const checkInsStreakSchema = z.number();
+
+export const lotteryOffchainSchema = z.object({
+  userGoldLeafCount: z.number(),
+  chipNum: z.number(),
+  pieceNum: z.number(),
+});
+
+export const lotteryTrySchema = z.object({
+  prize: z.string(),
+});

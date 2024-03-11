@@ -4,23 +4,29 @@ import { ethers } from "ethers";
 
 import { isToday } from "date-fns";
 import { randomFloat, shuffle, sleep } from "@alfar/helpers";
-import { MAX_GAS_PRICE, MIN_GAS_PRICE } from "../helpers/constants";
+import {
+  LOTTERY_LEAVES_PRICE,
+  MAX_GAS_PRICE,
+  MIN_GAS_PRICE,
+} from "../helpers/constants";
 import { logger, wait } from "../helpers/common";
 import {
   getCheckInStreakDays,
   getGifts,
   getGoldLeaves,
+  getLotteryOffchain,
   getNftSync,
   getQuiz,
   getQuizes,
   getRecentCheckIns,
   postChallenge,
   postGiftOpen,
+  postLotteryTry,
   postNonce,
   postQuizAnswer,
   putCheckIn,
 } from "./requests";
-import { getLoginMessage } from "./web3";
+import { getLoginAirdropMessage, getLoginReikiMessage } from "./web3";
 import answers from "./answers";
 
 const allowedGiftNames = ["Welcome Gift"];
@@ -45,13 +51,13 @@ class Worker {
     this.contract = contract;
   }
 
-  async login() {
+  private async loginReiki() {
     const { nonce } = await postNonce({
       client: this.client,
       address: this.wallet.address,
     });
 
-    const msg = getLoginMessage({
+    const msg = getLoginReikiMessage({
       address: this.wallet.address,
       nonce: nonce,
     });
@@ -72,12 +78,39 @@ class Worker {
     this.client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 
-  async isPassportAvailable() {
+  private async loginAirdrop() {
+    const { nonce } = await postNonce({
+      client: this.client,
+      address: this.wallet.address,
+    });
+
+    const msg = getLoginAirdropMessage({
+      address: this.wallet.address,
+      nonce: nonce,
+    });
+
+    const signature = await this.wallet.signMessage(msg);
+    const jsonMessage = JSON.stringify({ msg });
+
+    const responseBody = await postChallenge({
+      client: this.client,
+      address: this.wallet.address,
+      challenge: jsonMessage,
+      nonce,
+      signature,
+    });
+
+    const token = responseBody.extra.token;
+
+    this.client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+
+  private async isPassportAvailable() {
     const balanceStr = await this.contract.balanceOf(this.wallet.address);
     return Number(balanceStr) !== 0;
   }
 
-  async mint() {
+  private async mint() {
     const isPassportAvailable = await this.isPassportAvailable();
 
     if (isPassportAvailable) return null;
@@ -98,7 +131,7 @@ class Worker {
     return receipt.transactionHash;
   }
 
-  async giftOpen() {
+  private async giftOpen() {
     await getNftSync({ client: this.client });
 
     const gifts = await getGifts({ client: this.client });
@@ -116,7 +149,7 @@ class Worker {
     return filtered.length;
   }
 
-  async questions(quizId: string) {
+  private async questions(quizId: string) {
     let answeredCount = 0;
 
     const quizAnswers = answers[quizId];
@@ -149,7 +182,7 @@ class Worker {
     return answeredCount;
   }
 
-  async quizes() {
+  private async quizes() {
     let answeredCount = 0;
 
     const quizes = await getQuizes({ client: this.client });
@@ -163,7 +196,7 @@ class Worker {
     return answeredCount;
   }
 
-  async checkIn() {
+  private async checkIn() {
     const isChecked = await this.checkIsChecked();
     if (isChecked) return false;
 
@@ -171,13 +204,13 @@ class Worker {
     return true;
   }
 
-  async goldLeaves() {
+  private async goldLeaves() {
     const data = await getGoldLeaves({ client: this.client });
 
     return data.total;
   }
 
-  async checkIsChecked() {
+  private async checkIsChecked() {
     const recentCheckIns = await getRecentCheckIns({ client: this.client });
 
     const todaysCheckIn = recentCheckIns.find((c) => isToday(c.date));
@@ -187,16 +220,43 @@ class Worker {
     return todaysCheckIn.status === "checked";
   }
 
-  async checkInStreak() {
+  private async checkInStreak() {
     const data = await getCheckInStreakDays({ client: this.client });
 
     return data;
   }
 
+  private async playLottery() {
+    const lotteryOffchainData = await getLotteryOffchain({
+      client: this.client,
+    });
+
+    let spins = Math.floor(
+      lotteryOffchainData.userGoldLeafCount / LOTTERY_LEAVES_PRICE,
+    );
+
+    logger.info(`${this.name} | spins available: ${spins}`);
+
+    if (spins <= 0) return lotteryOffchainData;
+
+    while (spins > 0) {
+      const { prize } = await postLotteryTry({ client: this.client });
+      logger.info(`${this.name} | prize: ${prize}`);
+      spins -= 1;
+      await wait(3, 10);
+    }
+
+    const updatedLotteryOffchainData = await getLotteryOffchain({
+      client: this.client,
+    });
+
+    return updatedLotteryOffchainData;
+  }
+
   async register() {
     logger.info(`${this.wallet.address} | start`);
 
-    await this.login();
+    await this.loginReiki();
     logger.info(`${this.name} | login success`);
     await wait(5, 10);
 
@@ -211,31 +271,25 @@ class Worker {
       await sleep(1);
     }
 
-    try {
-      const openedGiftsCount = await this.giftOpen();
-      if (openedGiftsCount) {
-        logger.info(`${this.name} | opened ${openedGiftsCount} gifts`);
-        await wait(5, 10);
-      } else {
-        await sleep(1);
-      }
-    } catch (error: any) {
-      logger.error(`${this.name} | opening gift error ${error?.message}`);
-      await wait(5, 10);
-    }
+    let openedGifts = 0;
 
     try {
-      const answeredCount = await this.quizes();
-      if (answeredCount) {
-        logger.info(`${this.name} | answered ${answeredCount} questions`);
-        await wait(5, 10);
-      } else {
-        await sleep(1);
-      }
+      openedGifts = await this.giftOpen();
+      logger.info(`${this.name} | opened gifts: ${openedGifts}`);
+    } catch (error: any) {
+      logger.error(`${this.name} | opening gift error ${error?.message}`);
+    }
+    await wait(5, 10);
+
+    let answeredQuestions = 0;
+
+    try {
+      answeredQuestions = await this.quizes();
+      logger.info(`${this.name} | answered questions: ${answeredQuestions}`);
     } catch (error: any) {
       logger.error(`${this.name} | answering quizes error ${error?.message}`);
-      await wait(5, 10);
     }
+    await wait(5, 10);
 
     try {
       const isChecked = await this.checkIn();
@@ -254,16 +308,21 @@ class Worker {
     const checkInStreak = await this.checkInStreak();
 
     logger.info(
-      `${this.name} | current leave count: ${totalGoldLeaves} | streak: ${checkInStreak}`,
+      `${this.name} | leaves: ${totalGoldLeaves} | streak: ${checkInStreak}`,
     );
 
-    return { totalGoldLeaves, checkInStreak };
+    return {
+      totalGoldLeaves,
+      checkInStreak,
+      openedGifts,
+      answeredQuestions,
+    };
   }
 
   async collect() {
     logger.info(`${this.wallet.address} | start`);
 
-    await this.login();
+    await this.loginReiki();
     logger.info(`${this.name} | login success`);
     await wait(2);
 
@@ -285,10 +344,26 @@ class Worker {
     const checkInStreak = await this.checkInStreak();
 
     logger.info(
-      `${this.name} | current leave count: ${totalGoldLeaves} | streak: ${checkInStreak}`,
+      `${this.name} | leaves: ${totalGoldLeaves} | streak: ${checkInStreak}`,
     );
 
     return { totalGoldLeaves, checkInStreak };
+  }
+
+  async lottery() {
+    logger.info(`${this.wallet.address} | start`);
+
+    await this.loginAirdrop();
+    logger.info(`${this.name} | login success`);
+    await wait(2);
+
+    const { userGoldLeafCount, pieceNum, chipNum } = await this.playLottery();
+
+    logger.info(
+      `${this.name} | leaves: ${userGoldLeafCount} | peaces: ${pieceNum} | chips: ${chipNum}`,
+    );
+
+    return { userGoldLeafCount, pieceNum, chipNum };
   }
 }
 

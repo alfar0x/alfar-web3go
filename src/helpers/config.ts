@@ -8,24 +8,30 @@ const fixedSchema = z
     common: z.object({
       rpc: z.string().url(),
       isRandomProxy: z.boolean(),
+      errorWaitSec: iniNumberSchema,
+      errorRetryTimes: iniNumberSchema,
     }),
-    collectAll: z.object({
-      minutesBeforeStart: iniNumberSchema,
+    register: z.object({
+      minutesBeforeStart: iniNumberSchema.or(z.literal("tomorrow")),
       minSleepSecOnInit: iniNumberSchema,
       maxSleepSecOnInit: iniNumberSchema,
+      isNewTaskAfterFinish: z.boolean(),
+    }),
+    checkin: z.object({
+      minutesBeforeStart: iniNumberSchema.or(z.literal("tomorrow")),
+      minSleepSecOnInit: iniNumberSchema,
+      maxSleepSecOnInit: iniNumberSchema,
+      isNewTaskAfterFinish: z.boolean(),
+    }),
+    lottery: z.object({
+      minutesBeforeStart: iniNumberSchema.or(z.literal("tomorrow")),
+      minSleepSec: iniNumberSchema,
+      maxSleepSec: iniNumberSchema,
     }),
   })
   .strict();
 
-const dynamicSchema = z
-  .object({
-    collectAll: z.object({
-      isNewTaskAfterFinish: z.boolean(),
-      errorWaitSec: iniNumberSchema,
-      errorRetryTimes: iniNumberSchema,
-    }),
-  })
-  .strict();
+const dynamicSchema = z.object({}).strict();
 
 const config = new IniConfig({
   fileName: FILE_CONFIG,
@@ -37,20 +43,28 @@ const config = new IniConfig({
       common: {
         rpc: "https://rpc.ankr.com/bsc",
         isRandomProxy: true,
-      },
-      collectAll: {
-        minutesBeforeStart: 0,
-        minSleepSecOnInit: 10,
-        maxSleepSecOnInit: 30,
-      },
-    },
-    dynamic: {
-      collectAll: {
-        isNewTaskAfterFinish: true,
         errorWaitSec: 10,
         errorRetryTimes: 3,
       },
+      register: {
+        minutesBeforeStart: 0,
+        minSleepSecOnInit: 10,
+        maxSleepSecOnInit: 30,
+        isNewTaskAfterFinish: true,
+      },
+      checkin: {
+        minutesBeforeStart: 0,
+        minSleepSecOnInit: 10,
+        maxSleepSecOnInit: 30,
+        isNewTaskAfterFinish: true,
+      },
+      lottery: {
+        minutesBeforeStart: 0,
+        minSleepSec: 15,
+        maxSleepSec: 60,
+      },
     },
+    dynamic: {},
   },
 });
 

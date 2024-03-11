@@ -17,6 +17,7 @@ import {
 import axiosRetry from "axios-retry";
 import {
   CONTRACT_ADDRESS,
+  FILE_LOTTERY_TABLE,
   MIN_SLEEP_BETWEEN_ACCS_SEC,
 } from "../helpers/constants";
 import Worker from "../worker";
@@ -37,12 +38,16 @@ axiosRetry(axios, {
 });
 
 const main = async () => {
-  const secBeforeStart = differenceInSeconds(
-    addMinutes(startOfTomorrow(), randomInt(180, 240)),
-    new Date(),
-  );
+  if (config.fixed.lottery.minutesBeforeStart === "tomorrow") {
+    const secBeforeStart = differenceInSeconds(
+      addMinutes(startOfTomorrow(), randomInt(180, 240)),
+      new Date(),
+    );
 
-  await wait(secBeforeStart);
+    await wait(secBeforeStart);
+  } else if (config.fixed.lottery.minutesBeforeStart >= 0) {
+    await wait(Math.round(config.fixed.lottery.minutesBeforeStart * 60));
+  }
 
   const abi = readFile("./assets/abi.json");
 
@@ -57,12 +62,15 @@ const main = async () => {
 
   const wallets = getWallets(provider);
 
-  initTable(wallets.map((w) => w.wallet.address));
+  initTable(
+    FILE_LOTTERY_TABLE,
+    wallets.map((w) => w.wallet.address),
+  );
 
   const queue = new Queue(
     shuffle(wallets),
-    config.fixed.collectAll.minSleepSecOnInit,
-    config.fixed.collectAll.maxSleepSecOnInit,
+    config.fixed.lottery.minSleepSec,
+    config.fixed.lottery.maxSleepSec,
   );
 
   const lastRunTime = queue.lastRunTime();
@@ -110,18 +118,22 @@ const main = async () => {
     try {
       const client = getClient({
         proxy,
-        errorRetryTimes: config.dynamic().collectAll.errorRetryTimes,
-        errorWaitSec: config.dynamic().collectAll.errorWaitSec,
+        errorRetryTimes: config.fixed.common.errorRetryTimes,
+        errorWaitSec: config.fixed.common.errorWaitSec,
       });
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves, checkInStreak } = await worker.collect();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { userGoldLeafCount, pieceNum, chipNum } = await worker.lottery();
 
-      updateAddressData(wallet.address, {
-        totalLeaves: totalGoldLeaves,
-        checkInStreak,
-      });
+      updateAddressData(
+        FILE_LOTTERY_TABLE,
+        wallet.address,
+        userGoldLeafCount,
+        pieceNum,
+        chipNum,
+      );
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
       await wait(10);
@@ -129,12 +141,7 @@ const main = async () => {
 
     if (proxy.changeUrl) {
       await sendReqUntilOk(proxy.changeUrl);
-      // logger.info("ip changed");
-    }
-
-    if (config.dynamic().collectAll.isNewTaskAfterFinish) {
-      const nextRunSec = queue.push(queueItem);
-      logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
+      logger.info("ip changed");
     }
   }
 

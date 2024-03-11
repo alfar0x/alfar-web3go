@@ -5,6 +5,8 @@ import {
   checkInsStreakSchema,
   giftsSchema,
   goldLeavesSchema,
+  lotteryOffchainSchema,
+  lotteryTrySchema,
   nonceSchema,
   quizSchema,
   quizesSchema,
@@ -121,4 +123,20 @@ export const getCheckInStreakDays = async (params: { client: Axios }) => {
   const { data } = await client.get(`/checkin/streakdays?day=${day}`);
 
   return checkInsStreakSchema.parse(data);
+};
+
+export const postLotteryTry = async (params: { client: Axios }) => {
+  const { client } = params;
+
+  const { data } = await client.post(`/lottery/try`);
+
+  return lotteryTrySchema.parse(data);
+};
+
+export const getLotteryOffchain = async (params: { client: Axios }) => {
+  const { client } = params;
+
+  const { data } = await client.get(`/lottery/offchain`);
+
+  return lotteryOffchainSchema.parse(data);
 };
