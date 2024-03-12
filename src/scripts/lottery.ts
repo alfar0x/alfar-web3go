@@ -38,17 +38,6 @@ axiosRetry(axios, {
 });
 
 const main = async () => {
-  if (config.fixed.lottery.minutesBeforeStart === "tomorrow") {
-    const secBeforeStart = differenceInSeconds(
-      addMinutes(startOfTomorrow(), randomInt(180, 240)),
-      new Date(),
-    );
-
-    await wait(secBeforeStart);
-  } else if (config.fixed.lottery.minutesBeforeStart >= 0) {
-    await wait(Math.round(config.fixed.lottery.minutesBeforeStart * 60));
-  }
-
   const abi = readFile("./assets/abi.json");
 
   const provider = new ethers.providers.JsonRpcProvider({
@@ -61,6 +50,29 @@ const main = async () => {
   const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
   const wallets = getWallets(provider);
+
+  const proxies = await getProxies();
+
+  if (!config.fixed.common.isRandomProxy && wallets.length !== proxies.length) {
+    throw new Error(
+      `private keys count must be equals to proxies count if isRandomProxy=false`,
+    );
+  }
+
+  logger.info(`found ${wallets.length} accounts and ${proxies.length} proxies`);
+
+  if (!wallets.length) return;
+
+  if (config.fixed.lottery.minutesBeforeStart === "tomorrow") {
+    const secBeforeStart = differenceInSeconds(
+      addMinutes(startOfTomorrow(), randomInt(180, 240)),
+      new Date(),
+    );
+
+    await wait(secBeforeStart);
+  } else if (config.fixed.lottery.minutesBeforeStart >= 0) {
+    await wait(Math.round(config.fixed.lottery.minutesBeforeStart * 60));
+  }
 
   initTable(
     FILE_LOTTERY_TABLE,
@@ -76,9 +88,7 @@ const main = async () => {
   const lastRunTime = queue.lastRunTime();
   const secondsToInit = differenceInSeconds(lastRunTime, new Date());
 
-  logger.info(
-    `approx all wallets (${wallets.length}) will be initialized ${formatRel(secondsToInit)}`,
-  );
+  logger.info(`approx first iteration end: ${formatRel(secondsToInit)}`);
 
   let isFirstIteration = true;
 
@@ -99,17 +109,6 @@ const main = async () => {
     isFirstIteration = false;
 
     const { name, wallet, index } = queueItem;
-
-    const proxies = await getProxies();
-
-    if (
-      !config.fixed.common.isRandomProxy &&
-      wallets.length !== proxies.length
-    ) {
-      throw new Error(
-        `private keys count must be equals to proxies count if isRandomProxy=false`,
-      );
-    }
 
     const proxy = config.fixed.common.isRandomProxy
       ? randomChoice(proxies)
