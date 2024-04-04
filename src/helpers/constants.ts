@@ -8,6 +8,7 @@ export const FILE_PROXIES = "input/proxies.txt";
 export const FILE_CHECK_IN_TABLE = "output/checkin.csv";
 export const FILE_REGISTER_TABLE = "output/register.csv";
 export const FILE_LOTTERY_TABLE = "output/lottery.csv";
+export const FILE_OFFCHAIN_TABLE = "output/offchain.csv";
 export const FILE_CONFIG = "input/config.ini";
 
 export const MIN_SLEEP_BETWEEN_ACCS_SEC = 1;

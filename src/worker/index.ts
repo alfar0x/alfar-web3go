@@ -365,6 +365,24 @@ class Worker {
 
     return { userGoldLeafCount, pieceNum, chipNum };
   }
+
+  async getOffchainData() {
+    logger.info(`${this.wallet.address} | start`);
+
+    await this.loginAirdrop();
+    logger.info(`${this.name} | login success`);
+    await wait(2);
+
+    const { userGoldLeafCount, pieceNum, chipNum } = await getLotteryOffchain({
+      client: this.client,
+    });
+
+    logger.info(
+      `${this.name} | leaves: ${userGoldLeafCount} | peaces: ${pieceNum} | chips: ${chipNum}`,
+    );
+
+    return { userGoldLeafCount, pieceNum, chipNum };
+  }
 }
 
 export default Worker;

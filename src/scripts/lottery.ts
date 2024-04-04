@@ -88,7 +88,7 @@ const main = async () => {
   const lastRunTime = queue.lastRunTime();
   const secondsToInit = differenceInSeconds(lastRunTime, new Date());
 
-  logger.info(`approx first iteration end: ${formatRel(secondsToInit)}`);
+  logger.info(`approx end: ${formatRel(secondsToInit)}`);
 
   let isFirstIteration = true;
 
@@ -123,7 +123,6 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { userGoldLeafCount, pieceNum, chipNum } = await worker.lottery();
 
       updateAddressData(

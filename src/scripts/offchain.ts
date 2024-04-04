@@ -5,19 +5,13 @@ config.initialize();
 
 import { ethers } from "ethers";
 import axios from "axios";
-import { addMinutes, differenceInSeconds, startOfTomorrow } from "date-fns";
-import {
-  formatRel,
-  randomChoice,
-  randomInt,
-  readFile,
-  shuffle,
-} from "@alfar/helpers";
+import { differenceInSeconds } from "date-fns";
+import { formatRel, randomChoice, readFile, shuffle } from "@alfar/helpers";
 
 import axiosRetry from "axios-retry";
 import {
   CONTRACT_ADDRESS,
-  FILE_CHECK_IN_TABLE,
+  FILE_OFFCHAIN_TABLE,
   MIN_SLEEP_BETWEEN_ACCS_SEC,
 } from "../helpers/constants";
 import Worker from "../worker";
@@ -63,32 +57,21 @@ const main = async () => {
 
   if (!wallets.length) return;
 
-  if (config.fixed.checkin.minutesBeforeStart === "tomorrow") {
-    const secBeforeStart = differenceInSeconds(
-      addMinutes(startOfTomorrow(), randomInt(180, 240)),
-      new Date(),
-    );
-
-    await wait(secBeforeStart);
-  } else if (config.fixed.checkin.minutesBeforeStart >= 0) {
-    await wait(Math.round(config.fixed.checkin.minutesBeforeStart * 60));
-  }
-
   initTable(
-    FILE_CHECK_IN_TABLE,
+    FILE_OFFCHAIN_TABLE,
     wallets.map((w) => w.wallet.address),
   );
 
   const queue = new Queue(
     shuffle(wallets),
-    config.fixed.checkin.minSleepSecOnInit,
-    config.fixed.checkin.maxSleepSecOnInit,
+    config.fixed.offchain.minSleepSec,
+    config.fixed.offchain.maxSleepSec,
   );
 
   const lastRunTime = queue.lastRunTime();
   const secondsToInit = differenceInSeconds(lastRunTime, new Date());
 
-  logger.info(`approx first iteration end: ${formatRel(secondsToInit)}`);
+  logger.info(`approx end: ${formatRel(secondsToInit)}`);
 
   let isFirstIteration = true;
 
@@ -123,13 +106,15 @@ const main = async () => {
 
       const worker = new Worker({ name, client, wallet, contract });
 
-      const { totalGoldLeaves, checkInStreak } = await worker.collect();
+      const { userGoldLeafCount, pieceNum, chipNum } =
+        await worker.getOffchainData();
 
       updateAddressData(
-        FILE_CHECK_IN_TABLE,
+        FILE_OFFCHAIN_TABLE,
         wallet.address,
-        checkInStreak,
-        totalGoldLeaves,
+        userGoldLeafCount,
+        pieceNum,
+        chipNum,
       );
     } catch (error) {
       logger.error(`${wallet.address} | ${(error as Error)?.message}`);
@@ -139,11 +124,6 @@ const main = async () => {
     if (proxy.changeUrl) {
       await sendReqUntilOk(proxy.changeUrl);
       logger.info("ip changed");
-    }
-
-    if (config.fixed.checkin.isNewTaskAfterFinish) {
-      const nextRunSec = queue.push(queueItem);
-      logger.info(`${name} | next run ${formatRel(nextRunSec)}`);
     }
   }
 

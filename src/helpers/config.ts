@@ -28,6 +28,10 @@ const fixedSchema = z
       minSleepSec: iniNumberSchema,
       maxSleepSec: iniNumberSchema,
     }),
+    offchain: z.object({
+      minSleepSec: iniNumberSchema,
+      maxSleepSec: iniNumberSchema,
+    }),
   })
   .strict();
 
@@ -60,6 +64,10 @@ const config = new IniConfig({
       },
       lottery: {
         minutesBeforeStart: 0,
+        minSleepSec: 15,
+        maxSleepSec: 60,
+      },
+      offchain: {
         minSleepSec: 15,
         maxSleepSec: 60,
       },

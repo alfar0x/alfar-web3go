@@ -5,7 +5,6 @@ const sendReqUntilOk = async (
   url: string,
   config?: AxiosRequestConfig<any>,
 ) => {
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       const response = await axios(url, config);

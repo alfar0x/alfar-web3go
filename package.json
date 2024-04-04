@@ -6,6 +6,7 @@
     "register": "ts-node ./src/scripts/register.ts",
     "checkin": "ts-node ./src/scripts/checkin.ts",
     "lottery": "ts-node ./src/scripts/lottery.ts",
+    "offchain": "ts-node ./src/scripts/offchain.ts",
     "initialize": "ts-node ./src/scripts/initialize.ts",
     "update": "git reset --hard HEAD && git pull && npm install && ts-node src/scripts/update.ts"
   },
